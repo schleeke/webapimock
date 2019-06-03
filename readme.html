@@ -1,0 +1,91 @@
+﻿<!DOCTYPE html>
+<html>
+    <head>
+        <title>Readme</title>
+        <meta charset="utf-8">
+    </head>
+    <body style="margin: 32px;font-family: 'Segoe UI';">
+        <h1>WebAPI Mockup Service</h1>
+        <pre style="font-family: 'Consolas';">Please read this document carefully and configure the WebAPI Mockup Service so that it will fit your environment and requirements.</pre>
+        
+        <!-- Table Of Contents -->
+        <div style="margin-top: 32px;">
+            <h2>Table Of Contents</h2>
+            <ol>
+                <li><a href="#installation">Installation</a></li>
+                <li><a href="#configuration">Configuration</a></li>
+                <li><a href="#start_run">Start/Run</a></li>
+                <li><a href="#define_mock_values">Defining mock up values</a></li>
+                <li><a href="#logging">Logging</a></li>
+                <li><a href="#special_urls">Special URLs</a></li>
+            </ol>
+        </div>
+
+        <div style="margin-top: 64px; background-color:whitesmoke; padding: 16px;">
+            <a name="installation"></a>
+            <h2>Installation</h2>
+            <p>
+                The program needs no special installation/setup routine and can be copied to any directory that suits your needs.
+            </p>
+            <div style="margin-left: 16px;">
+                <h4>SSL/TLS</h4>
+                <p>The service itself has no capabilities for specifying certificates for a SSL/TLS connection. Please use the windows-internal tools like <em>netsh.exe</em> to define a certificate for a certain address.</p>
+            </div>
+        </div>
+
+        <div style="margin-top: 32px; background-color:whitesmoke; padding: 16px;">
+            <a name="configuration"></a>
+            <h2>Configuration</h2>
+            <p>The application is configured by its application config file named <em>WebApiMock.exe.config</em>. It is written in XML style and can be changed by the text editor of your choice.</p>
+            <p>The values that can/should be altered are the keys <em>BaseUrl</em> and <em>CreateDefaultResponse</em> that can be found within the <em>appSetings</em> node.</p>
+            <div style="margin-left: 16px;">
+                <h3><em>BaseUrl</em></h3>
+                <p>Defines the address the web server is listening at. An asterisk means that the server will listen on any local IP address or to the machine's DNS name. The port that the server is listening to can also be defined in the base URL and follows the standard rules of being separated by a colon and standing right after the host name. A port must always be specified.</p>
+                <pre><ins>Examples:</ins></pre>
+                <pre>http://*:80/MyMockUpService</pre>
+                <pre>http://192.168.0.1:1337/MyMockUpService</pre>
+                <pre>https://servername:443/Service/Mockup</pre>
+            </div>
+            <div style="margin-left: 16px;margin-top: 32px;">
+                <h3><em>CreateDefaultResponse</em></h3>
+                <p>Specifies if the service should create a default response (and a sub-directory that correlates with the query [see '<a href="#define_mock_values">Defining mock up values</a>' for further details]) if none is defined. The value can be <em>false</em> or <em>true</em>.</p>
+                <pre>Please keep in mind that 'foreign' requsts will affect your HDD and your directory hierarchy beneath the application's one. We recommend setting the value to 'true' only in trusted environments.</pre>
+            </div>
+        </div>
+
+        <div style="margin-top: 32px; background-color:whitesmoke; padding: 16px;">
+            <a name="start_run"></a>
+            <h2>Start/Run</h2>
+            <p>The application can be started from the command line by simply calling the WebApiMock.exe from the command line.</p>
+            <p>To install the application as a service, simply add the parameter install to the EXE call. To remove the windows service, just use the parameter uninstall to do so.</p>
+            <p>The application uses Topshelf to provide the service controller capabilites. Please refer to <a href="https://topshelf.readthedocs.io/en/latest/overview/commandline.html" target="_blank">their homepage    </a> to get detailed information about the possible parameters.</p>
+            <pre><ins>Examples:</ins></pre>
+            <pre>WebApiMock.exe</pre>
+            <pre>WebApiMock.exe install</pre>
+            <pre>WebApiMock.exe uninstall</pre>
+        </div>
+
+        <div style="margin-top: 32px; background-color:whitesmoke; padding: 16px;">
+            <a name="define_mock_values"></a>
+            <h2>Defining mock up values</h2>
+            <p>The value for the requests are fetched from files called response.json within subdirectories that correlate to the ones from the URL-path. Regard that only the path parts that are an extension of the configured base URL are used.</p>
+            <p>A client request of <em>http://*:1337/myService/mock/values/mycoolvalue</em> will result in looking for values within the subdirectory path <em>/values/mycoolvalue[/response.json]</em> if the base URL is configured as <em>http://*:1337/myService/mock</em>.</p>
+            <p>Create a file called &lt;statuscode-number&gt;.statuscode to return the status code that is defined by the file's name. E.g. 404.statuscode to return a status code 404 for the request.</p>
+            <p>JSON will only be returned if no custom status code for the request is specified. Otherwise a small HTML will be delivered.</p>
+        </div>
+
+        <div style="margin-top: 32px; background-color:whitesmoke; padding: 16px;">
+            <a name="logging"></a>
+            <h2>Logging</h2>
+            <p>Logging is provided via <a href="https://logging.apache.org/log4net/" target="_blank">log4net</a> and is configured by the <em>WebApiMock.exe.config</em> within the log4net-node. All log messages will be written to StdOut (in console mode) and also to a file called <em>WebApiMock.log</em>. Error messages will be written to a file called <em>error.log</em> as well. Feel free to adjust the settings but keep in mind that <a href="http://topshelf-project.com/" target="_blank">Topshelf's</a> output (the service controller within the EXE) is bound to log4net.</p>
+        </div>
+
+        <div style="margin-top: 32px; background-color:whitesmoke; padding: 16px;">
+            <a name="special_urls"></a>
+            <h2>Special URLs</h2>
+            <p>There are two special URLs that will deliver a HTML page: /index.html and /readme.html.</p>
+            <p>index.html just displays a 'welcome' in the browser an can be used for testing the general availability for the service.</p>
+            <p>readme.html contains the documentation for the service.</p>
+        </div>
+    </body>
+</html>

@@ -1,9 +1,14 @@
-﻿function onWindowLoad() {
+﻿/*
+    .ctor()
+    Executed on document load.
+*/
+$( document ).ready(function() {
+    $('body').bootstrapMaterialDesign();
     hideViewRequestsButton();
     hideAlert();
     hideCreateRequestButton();
     getAmountOfMockupRequests();
-}
+});
 
 function getAmountOfMockupRequests() {
     var url = window.location;

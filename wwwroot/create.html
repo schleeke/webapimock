@@ -5,6 +5,7 @@
     <title>Create | Web API Mock service</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="stylesheet" href="css/bootstrap.min.css" />
+    <link rel="stylesheet" href="css/bootstrap-material-design.min.css" />
     <style>
         body {
             background-color: #ffffff;
@@ -14,7 +15,7 @@
         }
     </style>
 </head>
-<body onload="onWindowLoad()">
+<body>
     <br/>
     <div class="container-fluid">
         <div class="container">
@@ -32,7 +33,7 @@
                     <div class="col-md-9 col-sm-12">
                         <div class="form-group">
                             <label for="form-route-text">Route (relative path) <span class="badge badge-danger">required</span></label>
-                            <input id="form-route-text" class="form-control" type="text" placeholder="e.g. myroute/subresource" />
+                            <input id="form-route-text" class="form-control" type="text" placeholder="e.g. myroute/subresource" oninput="onRouteTextChange()"/>
                             <div class="invalid-feedback">
                                 Please enter a route.
                             </div>
@@ -58,7 +59,7 @@
                 <div class="form-row">
                     <div class="col">
                         <div class="form-group">
-                            <label for="form-query-string">Query parameters</label>
+                            <label for="form-query-string">Query parameters <span class="badge badge-info">optional</span></label>
                             <input id="form-query-string" class="form-control" type="text" placeholder="e.g. param1=value01&param2=value02" />
                         </div>
                     </div>
@@ -66,36 +67,80 @@
                 <div id="request-body-row" class="form-row">
                     <div class="col">
                         <div class="form-group">
-                            <label for="form-query-string">Body</label>
-                            <textarea id="form-query-string" class="form-control" rows="7" placeholder="The content of the request body. e.g. some JSON..."></textarea>
+                            <label for="form-query-string">Body <span class="badge badge-info">optional</span></label>
+                            <textarea id="form-query-string" class="form-control" rows="1" placeholder="The content of the request body. e.g. some JSON..."></textarea>
                         </div>
                     </div>
                 </div>
-                <label class="form-check-label" for="check-test">Response</label>
+                <label class="form-check-label" for="check-test">Response <span class="badge badge-danger">required</span></label>
                 <div id="check-test" class="form-row">
                     <div class="container">
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="inlineRadioOptions" id="form-use-new-response" value="new" checked>
+                            <input class="form-check-input" type="radio" name="responseType" id="form-use-new-response" value="new" checked onchange="setResponseTypeVisibility()">
                             <label class="form-check-label" for="form-use-new-response">New</label>
                         </div>
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="inlineRadioOptions" id="form-use-existing-response" value="existing">
+                            <input class="form-check-input" type="radio" name="responseType" id="form-use-existing-response" value="existing"  onchange="setResponseTypeVisibility()">
                             <label class="form-check-label" for="form-use-existing-response">Existing</label>
                         </div>
                     </div>
                 </div>
-                <br/>
-                <div class="form-row">
-                    <a id="btn-view-requests" class="btn btn-primary text-white" role="button" href="view.html">Create</a>
-                </div>
 
+                <!-- area for new response -->
+                <div id="new-response-area" class="container" style="background-color: #ffffff; border-radius: 4px;">
+                    <br/>
+                    
+                    <div class="form-row">
+                        <div class="col">
+                            <div class="form-group">
+                                <label for="form-request-statuscode">HTTP status code <span class="badge badge-danger">required</span></label>
+                                <input id="form-request-statuscode" class="form-control" type="text" placeholder="e.g. 200" oninput="onResponseStatusCodeChanged()" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="col">
+                            <div class="form-group">
+                                <label for="form-request-responsecontent">Response content <span class="badge badge-info">optional</span></label>
+                                <textarea id="form-request-responsecontent" class="form-control" rows="1" placeholder="e.g. { &quot;message&quot;: &quot;everything OK&quot; }" oninput="onResponseContentTextChange()"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="response-mime-type-row" class="form-row">
+                        <div class="col">
+                            <div class="form-group">
+                                <label for="form-request-response-mimetype">MIME type <span class="badge badge-danger">required</span></label>
+                                <select id="form-request-response-mimetype" class="custom-select" required onchange="onMimeTypeSelect(value)">
+                                    <option selected disabled value="">Choose...</option>
+                                    <option>application/json</option>
+                                    <option>text/comma-separated-values</option>
+                                    <option>text/css</option>
+                                    <option>text/html</option>
+                                    <option>text/plain</option>
+                                    <option>text/rtf</option>
+                                    <option>text/xml</option>
+                                    <option>text/javascript</option>
+                                </select>
+                                <div class="invalid-feedback">
+                                    Please select a valid MIME type.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <br/>
             </form>
+            <div class="form-row">
+                <button id="btn-create-request" class="btn btn-primary">Create</button>
+            </div>
         </div>
     </div>
 
     <script src="js/jquery-3.4.1.min.js"></script>
     <script src="js/popper.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
+    <script src="js/bootstrap-material-design.min.js"></script>
     <script src="js/create.js"></script>
 </body>
 </html>

@@ -3,11 +3,11 @@
     Executed on document load.
 */
 $( document ).ready(function() {
-    $('body').bootstrapMaterialDesign();
-    hideViewRequestsButton();
     hideAlert();
+    hideViewRequestsButton();
     hideCreateRequestButton();
     getAmountOfMockupRequests();
+    //$('body').bootstrapMaterialDesign();
 });
 
 function getAmountOfMockupRequests() {

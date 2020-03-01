@@ -11,9 +11,9 @@ var isResponseReady = false;    // indicates if all information for a valid resp
     Executed on document load.
 */
 $( document ).ready(function() {
-    $('body').bootstrapMaterialDesign();
     validateResponse();
     setMimeTypeSelectorVisible();
+    //$('body').bootstrapMaterialDesign();
 });
 
 /*

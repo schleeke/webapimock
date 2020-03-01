@@ -11,9 +11,7 @@ namespace WebApiMock.Controllers {
     /// <inheritdoc/>
     [Route("[controller]")]
     [ApiController]
-    public class ToolsController : ControllerBase
-    {
-
+    public class ToolsController : ControllerBase {
         private readonly DataService _data;
 
         /// <inheritdoc/>
@@ -31,17 +29,22 @@ namespace WebApiMock.Controllers {
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult> Import(string path) {
-            Logger.Info($"Executing ToolsController.Import(\"{path}\")");
-            var directoryInfo = new System.IO.DirectoryInfo(path);
+            var transactionId = Guid.NewGuid();
+            System.IO.DirectoryInfo directoryInfo;
+            System.IO.DirectoryInfo[] subDirectories;
+
+            Logger.Info($"[{transactionId}] Executing ToolsController.Import(\"{path}\")");
+            directoryInfo = new System.IO.DirectoryInfo(path);
             if (!directoryInfo.Exists) {
-                Logger.Warn("Canceling import because the path was not found.");
+                Logger.Warn($"[{transactionId}] Canceling import because the path was not found.");
                 return NotFound(); }
-            Logger.Info($"Importing legacy requests from directory '{path}'...");
-            foreach (var dir in directoryInfo.GetDirectories()) {
-                if(dir.Name.Equals("src", StringComparison.InvariantCultureIgnoreCase)) { continue; }
-                ProcessMockupDirectory(dir);
+            subDirectories = directoryInfo.GetDirectories();
+            Logger.Debug($"[{transactionId}] Processing {subDirectories.Length} directories...");
+            foreach (var subDir in subDirectories) {
+                Logger.Debug($"[{transactionId}] Processing {subDir.Name}...");
+                ImportDirectory(subDir, false, transactionId);
             }
-            Logger.Info($"Successfully imported legacy path.");
+            Logger.Info($"[{transactionId}] Successfully imported legacy path.");
             return Ok(path);
         }
 
@@ -56,69 +59,80 @@ namespace WebApiMock.Controllers {
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult> Delete() {
-            Logger.Info("Executing ToolsController.Delete()");
+            var transactionId = Guid.NewGuid();
+            Logger.Info($"[{transactionId}] Executing ToolsController.Delete()");
             var fileName = System.IO.Path.Combine(Program.ApplicationDirectory.FullName, "mock-data.db");
             if(!System.IO.File.Exists(fileName)) {
-                Logger.Debug("Database file does not exists. Skipping file deletion.");
-                Logger.Info("Successfully removed the existing database.");
+                Logger.Debug($"[{transactionId}] Database file does not exists. Skipping file deletion.");
+                Logger.Info($"[{transactionId}] Successfully removed the existing database.");
                 return Ok(); }
             try {
                 System.IO.File.Delete(fileName); }
             catch (System.IO.IOException ex) {
-                Logger.Error($"An error occured while deleting the database file: {ex.GetFullMessage()}");
+                Logger.Error($"[{transactionId}] An error occured while deleting the database file: {ex.GetFullMessage()}");
                 return StatusCode(500, $"Unable to delete the database: {ex.Message}"); }
-            Logger.Info("Successfully removed the existing database.");
+            Logger.Info($"[{transactionId}] Successfully removed the existing database.");
             return Ok();
         }
+
     
-        private void ProcessMockupDirectory(System.IO.DirectoryInfo dir, bool isQueryDirectory = false) {
-            Logger.Debug($"Processing {(isQueryDirectory ? "(sub-)" : "")}directory '{dir.Name}'...");
-            var route = isQueryDirectory ? dir.Parent.Name : dir.Name;
-            var query = isQueryDirectory ? dir.Name : "";
+        private void ImportDirectory(System.IO.DirectoryInfo dir, bool isQueryDirectory, Guid transactionId) {
+            var comp = StringComparison.InvariantCultureIgnoreCase;
+            var mimeType = "application/json";
+            var query = string.Empty;
+            var body = string.Empty;
+            var route = dir.Name;
             int statusCode;
             string response;
-            var hasResponse = dir.GetFiles("response.json").Any();
-            var hasStatusCode = dir.GetFiles("*.statuscode").Any();
-
-            response = dir.GetMockupResponse();
-            statusCode = dir.GetMockupStatusCode();
-            if(!string.IsNullOrEmpty(query) && isQueryDirectory) {
-                query = HttpUtility.UrlDecode(query); }
-            if (hasResponse || hasStatusCode) {
-                CreateMockupResponse(route, "GET", statusCode, response, query); }
-            if (isQueryDirectory) {
-                return; }
-            foreach (var subDir in dir.GetDirectories()) {
-                ProcessMockupDirectory(subDir, true); }
-
-        }
-
-        private void CreateMockupResponse(string route, string method, int statusCode, string response, string query="") {
-            Logger.Debug($"Trying to create response for route '{route}' [{method}] and HTTP status code #{statusCode}{(string.IsNullOrEmpty(query) ? "." : " and query '" + query + "}'.")}");
-            var requestExists = _data.RequestExists(method, route);
-            var responseExists = _data.ResponseExists(statusCode, response, "application/json");
+            bool responseExists;
+            bool requestExists;
             int responseId;
+            int requestId;
 
-            if(requestExists) {
-                Logger.Warn($"A request for route '{route}' [{method}] already exists. Skipping import of current directory.");
+            if(dir.Name.Equals("src", comp)) {
+                Logger.Warn($"[{transactionId}] Skipping directory.");
                 return; }
-            if(responseExists) {
-                Logger.Debug("A response already exists. Fetiching its information.");
-                responseId = _data.GetResponse(statusCode, response, "application/json").Id; }
-            else {
-                Logger.Debug("Creating new response.");
-                responseId = _data.AddResponse(new MockupResponse {
+
+            Logger.Debug($"[{transactionId}] Processing {(isQueryDirectory ? "query" : "route")} directory.");
+            if(isQueryDirectory) {
+                route = dir.Parent.Name;
+                query = HttpUtility.UrlDecode(dir.Name); }
+            statusCode = dir.GetMockupStatusCode();
+            response = dir.GetMockupResponse();
+            responseExists = DataService.ResponseExists(statusCode, response, mimeType, transactionId);
+            requestExists = DataService.RequestExists("GET", route, query, body, transactionId);
+            if(requestExists && responseExists) {
+                Logger.Info($"[{transactionId}] Response and request already exist for current directory.");
+                return; }
+            if(!responseExists) {
+                responseId = DataService.AddResponse(new MockupResponse {
                     Id = 0,
-                    StatusCode = statusCode,
+                    MimeType = mimeType,
                     Response = response,
-                    MimeType = string.IsNullOrEmpty(response) ? "" : "application/json" }).Id; }
-            Logger.Debug("Creating new request.");
-            _data.AddRequest(new MockupRequest {
-                HttpMethod = method,
-                Route = route,
-                Query = query,
-                ResponseId = responseId });
+                    StatusCode = statusCode                    
+                }, transactionId).Id; }
+            else {
+                responseId = _data.GetResponse(statusCode, response, mimeType, transactionId).Id; }
+            if(!requestExists) {
+                requestId = DataService.AddRequest(new MockupRequest {
+                    Id = 0,
+                    Body = body,
+                    HttpMethod = "GET",
+                    Query = query,
+                    Route = route,
+                    ResponseId = responseId
+                }, transactionId).Id; }
+            else {
+                requestId = _data.GetRequest("GET", route, query, body, transactionId).Id; }
+            Logger.Info($"[{transactionId}] Successfully created request/response pair. IDs: {requestId}/{responseId}.");
+            if(!isQueryDirectory) {
+                var subDirs = dir.GetDirectories();
+                Logger.Debug($"[{transactionId}] Processing query directories ({subDirs.Length})...");
+                foreach (var subDir in subDirs) {
+                    ImportDirectory(subDir, true, transactionId); }
+            }
         }
+   
 
         /// <summary>
         /// The program's logger.

@@ -11,10 +11,9 @@ namespace WebApiMock.Controllers {
     [Route("[controller]")]
     [ApiController]
     public class RequestController : ControllerBase {
-        private readonly DataService _data;
 
         /// <inheritdoc/>
-        public RequestController(DataService data) => _data = data;
+        public RequestController(DataService data) { }
 
         /// <summary>
         /// Gets a list of all existing request definitions.
@@ -31,7 +30,7 @@ namespace WebApiMock.Controllers {
         [Produces("application/json")]
         [ProducesResponseType(typeof(IEnumerable<MockupRequest>), StatusCodes.Status200OK)]
         public async Task<ActionResult<IEnumerable<MockupRequest>>> Get() {
-            MockupRequest[] result = _data.GetRequests();
+            MockupRequest[] result = DataService.GetRequests();
             return Ok(result);
         }
 
@@ -55,7 +54,7 @@ namespace WebApiMock.Controllers {
         public async Task<ActionResult<MockupRequest>> Get(int id) {
             MockupRequest result;
             try {
-                result = _data.GetRequestById(id);
+                result = DataService.GetRequestById(id);
             }
             catch (WebApiMockException ex) {
                 if (ex.ErrorCode == 11) {
@@ -95,17 +94,18 @@ namespace WebApiMock.Controllers {
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(MockupRequest), StatusCodes.Status200OK)]
         public async Task<ActionResult<MockupRequest>> Put([FromBody]MockupRequest request) {
-            Logger.Info($"Executing RequestController.Put({request})");
+            var logId = Guid.NewGuid();
+            Logger.Info($"[{logId}] Executing RequestController.Put({request})");
             if (request.Id > 0) {
-                Logger.Error("The new request definition does not have an empty id.");
+                Logger.Error($"[{logId}] The new request definition does not have an empty id.");
                 return StatusCode(409, "The new request definition does not have an empty id."); }
-            if (_data.RequestExists(request.HttpMethod, request.Route, request.Query, request.Body)) {
-                Logger.Error("A request with the given values already exists.");
+            if (DataService.RequestExists(request.HttpMethod, request.Route, request.Query, request.Body, logId)) {
+                Logger.Error($"[{logId}] A request with the given values already exists.");
                 return BadRequest("A request with the given values already exists."); }
             if(request.Body == null) { request.Body = ""; }
             if(request.Query == null) { request.Query = ""; }
-            var retVal = _data.AddRequest(request);
-            Logger.Info($"Successfully created request with id #{retVal.Id}.");
+            var retVal = DataService.AddRequest(request, logId);
+            Logger.Info($"[{logId}] Successfully created request with id #{retVal.Id}.");
             return Ok(retVal);
         }
 
@@ -142,20 +142,20 @@ namespace WebApiMock.Controllers {
                 return StatusCode(409, "The request definition has an empty id."); }
             if (!request.Id.Equals(id)) {
                 return StatusCode(406, "Ids mismatch."); }
-            if (!_data.RequestExistsForId(request.Id)) {
+            if (!DataService.RequestExistsForId(request.Id)) {
                 return NotFound($"No request definition found with id #{id}."); }
-            var existingRequest = _data.GetRequestById(id);
+            var existingRequest = DataService.GetRequestById(id);
             if (!existingRequest.HttpMethod.Equals(request.HttpMethod, StringComparison.InvariantCultureIgnoreCase)) {
-                _data.SetRequestMethod(id, request.HttpMethod);
+                DataService.SetRequestMethod(id, request.HttpMethod);
             }
             if (!existingRequest.Query.Equals(request.Query, StringComparison.InvariantCultureIgnoreCase)) {
-                _data.SetRequestQuery(id, request.Query);
+                DataService.SetRequestQuery(id, request.Query);
             }
             if (!existingRequest.Body.Equals(request.Body, StringComparison.InvariantCultureIgnoreCase)) {
-                _data.SetRequestBody(id, request.Body);
+                DataService.SetRequestBody(id, request.Body);
             }
             if (existingRequest.ResponseId != request.ResponseId) {
-                _data.SetRequestResponseId(id, request.ResponseId);
+                DataService.SetRequestResponseId(id, request.ResponseId);
             }
             return Ok(request);
         }
@@ -181,9 +181,9 @@ namespace WebApiMock.Controllers {
         public async Task<ActionResult> Delete(int id) {
             if(id == 0) {
                 return BadRequest("The id is 0."); }
-            if(!_data.RequestExistsForId(id)) {
+            if(!DataService.RequestExistsForId(id)) {
                 return NotFound($"No request with id #{id} found."); }
-            _data.RemoveRequest(id);
+            DataService.RemoveRequest(id);
             return Ok();
         }
 

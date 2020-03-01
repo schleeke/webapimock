@@ -13,7 +13,8 @@ var isResponseReady = false;    // indicates if all information for a valid resp
 $( document ).ready(function() {
     validateResponse();
     setMimeTypeSelectorVisible();
-    //$('body').bootstrapMaterialDesign();
+    setResponseTypeVisibility();
+    $("#btn-home").tooltip();
 });
 
 /*
@@ -100,9 +101,32 @@ function isStatuscodeInputValid() { // Checks if the value for the HTTP status c
 function setResponseTypeVisibility() { // Sets the visibility of the different response type areas.
     var isNew = $('#form-use-new-response').is(':checked');
     if(isNew) {
+        $('#existing-response-area').hide();
         $('#new-response-area').show();
     } else {
         $('#new-response-area').hide();
+        $('#existing-response-area').show();
+        getExistingResponses();
     }
     validateResponse();
+}
+function gotoHome() {
+    window.document.location.href = 'default.html';
+}
+function getExistingResponses() {
+    var url = window.location;
+    var url = url.protocol + "//" + url.host + "/response";
+    $.ajax({
+        url: url,
+        type: 'GET',
+        dataType: 'json',
+        success: function (data) {
+            if (data == "") {
+                return; }
+            var count = data.length;
+        },
+        error: function (request, status, errorText) {
+        }
+    });
+
 }

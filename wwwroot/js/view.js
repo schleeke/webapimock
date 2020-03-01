@@ -3,5 +3,10 @@
     Executed on document load.
 */
 $( document ).ready(function() {
-  //$('body').bootstrapMaterialDesign();
+  $("#btn-home").tooltip();
 });
+
+
+function gotoHome() {
+  window.document.location.href = 'default.html';
+}

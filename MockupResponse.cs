@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json;
 
 namespace WebApiMock {
     /// <summary>
@@ -37,5 +38,24 @@ namespace WebApiMock {
         /// <see cref="MimeType"/> must also be set if set.
         /// </remarks>
         public string Response { get; set; }
+
+        /// <inheritdoc/>
+        public override string ToString() {
+            var options = new JsonSerializerOptions { WriteIndented = true };
+            var retVal = JsonSerializer.Serialize(this, options);
+            return retVal;
+        }
+
+        /// <summary>
+        /// Deserializes a JSON string to a <see cref="MockupResponse"/>.
+        /// </summary>
+        /// <param name="json">The JSON string.</param>
+        /// <returns>Returns a <see cref="MockupResponse"/> with the values from the JSON string.</returns>
+        public static MockupResponse FromJson(string json) {
+            var options = new JsonSerializerOptions { WriteIndented = true };
+            var retVal = JsonSerializer.Deserialize<MockupResponse>(json, options);
+            return retVal;
+        }
+
     }
 }

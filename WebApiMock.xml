@@ -94,6 +94,93 @@
             <response code="400">The id is 0 (zero).</response>
             <response code="404">No request with the given id found.</response>
         </member>
+        <member name="T:WebApiMock.Controllers.ResponseController">
+            <inheritdoc/>
+        </member>
+        <member name="M:WebApiMock.Controllers.ResponseController.#ctor(WebApiMock.Data.DataService)">
+            <inheritdoc/>
+        </member>
+        <member name="M:WebApiMock.Controllers.ResponseController.Get">
+            <summary>
+            Gets a list of all existing response definitions.
+            </summary>
+            <returns>A list of mock-up responses.</returns>
+            <remarks>
+            Sample request:
+            
+            GET /response
+            </remarks>
+            <response code="200">OK.</response>
+        </member>
+        <member name="M:WebApiMock.Controllers.ResponseController.Get(System.Int32)">
+            <summary>
+            Gets a specific response definition.
+            </summary>
+            <param name="id">The id of the response definition.</param>
+            <returns>The mock-up response with the given id.</returns>
+            <remarks>
+            Sample request:
+            
+            GET /response/5
+            </remarks>
+            <response code="200">OK.</response>
+            <response code="404">A response with the given id was not found.</response>
+        </member>
+        <member name="M:WebApiMock.Controllers.ResponseController.Put(WebApiMock.MockupResponse)">
+            <summary>
+            Adds a new response definition.
+            </summary>
+            <param name="response">The mock-up response to add.</param>
+            <returns>The added mock-up response with an updated Id value.</returns>
+            <remarks>
+            Sample request:
+            
+            PUT /response
+            {
+              "Id": 0,
+              "StatusCode": 205,
+              "MimeType": "text/plain" |null,
+              "Response": "my cool response" | null
+            }
+            </remarks>
+            <response code="200">OK.</response>
+            <response code="400">A response with the given values already exists.</response>
+            <response code="409">The id is not 0 (zero).</response>
+        </member>
+        <member name="M:WebApiMock.Controllers.ResponseController.Delete(System.Int32)">
+            <summary>
+            Removes a mock-up response from the database.
+            </summary>
+            <param name="id">The id of the mock-up response that should be removed.</param>
+            <returns>Nothing</returns>
+            <remarks>
+            Sample request:
+            
+            DELETE /response/18
+            </remarks>
+            <response code="200">OK.</response>
+            <response code="400">The id is 0 (zero).</response>
+            <response code="404">No response with the given id found.</response>
+        </member>
+        <member name="M:WebApiMock.Controllers.ResponseController.Patch(System.Int32,WebApiMock.MockupResponse)">
+            <summary>
+            Updates the values of an existing mock-up response.
+            </summary>
+            <param name="id">The id of the mock-up response that should be updated.</param>
+            <param name="response">A mock-up response with the new values.</param>
+            <remarks>
+            Sample request:
+            
+            PATCH /response/18
+            {
+              "Id": 18,
+              "StatusCode": 205,
+              "MimeType": "text/plain",
+              "Response": "my new response value"
+            }
+            </remarks>
+            <returns>The updated mock-up response.</returns>
+        </member>
         <member name="T:WebApiMock.Controllers.ToolsController">
             <inheritdoc/>
         </member>

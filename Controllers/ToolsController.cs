@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
@@ -20,7 +19,6 @@ namespace WebApiMock.Controllers {
         /// <inheritdoc/>
         public ToolsController(DataService data) => _data = data;
 
-
         /// <summary>
         /// Imports the definitions from the old mock-up service.
         /// </summary>
@@ -33,13 +31,17 @@ namespace WebApiMock.Controllers {
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult> Import(string path) {
+            Logger.Info($"Executing ToolsController.Import(\"{path}\")");
             var directoryInfo = new System.IO.DirectoryInfo(path);
-            if (!directoryInfo.Exists) { return NotFound(); }
+            if (!directoryInfo.Exists) {
+                Logger.Warn("Canceling import because the path was not found.");
+                return NotFound(); }
             Logger.Info($"Importing legacy requests from directory '{path}'...");
             foreach (var dir in directoryInfo.GetDirectories()) {
                 if(dir.Name.Equals("src", StringComparison.InvariantCultureIgnoreCase)) { continue; }
                 ProcessMockupDirectory(dir);
             }
+            Logger.Info($"Successfully imported legacy path.");
             return Ok(path);
         }
 
@@ -54,8 +56,12 @@ namespace WebApiMock.Controllers {
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult> Delete() {
+            Logger.Info("Executing ToolsController.Delete()");
             var fileName = System.IO.Path.Combine(Program.ApplicationDirectory.FullName, "mock-data.db");
-            if(!System.IO.File.Exists(fileName)) { return Ok(); }
+            if(!System.IO.File.Exists(fileName)) {
+                Logger.Debug("Database file does not exists. Skipping file deletion.");
+                Logger.Info("Successfully removed the existing database.");
+                return Ok(); }
             try {
                 System.IO.File.Delete(fileName); }
             catch (System.IO.IOException ex) {

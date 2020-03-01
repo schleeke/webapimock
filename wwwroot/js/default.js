@@ -7,7 +7,6 @@ $( document ).ready(function() {
     hideViewRequestsButton();
     hideCreateRequestButton();
     getAmountOfMockupRequests();
-    //$('body').bootstrapMaterialDesign();
 });
 
 function getAmountOfMockupRequests() {

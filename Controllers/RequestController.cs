@@ -95,17 +95,17 @@ namespace WebApiMock.Controllers {
         [ProducesResponseType(typeof(MockupRequest), StatusCodes.Status200OK)]
         public async Task<ActionResult<MockupRequest>> Put([FromBody]MockupRequest request) {
             var logId = Guid.NewGuid();
-            Logger.Info($"[{logId}] Executing RequestController.Put({request})");
+            Program.Logger.Info($"[{logId}] Executing RequestController.Put({request})");
             if (request.Id > 0) {
-                Logger.Error($"[{logId}] The new request definition does not have an empty id.");
+                Program.Logger.Error($"[{logId}] The new request definition does not have an empty id.");
                 return StatusCode(409, "The new request definition does not have an empty id."); }
             if (DataService.RequestExists(request.HttpMethod, request.Route, request.Query, request.Body, logId)) {
-                Logger.Error($"[{logId}] A request with the given values already exists.");
+                Program.Logger.Error($"[{logId}] A request with the given values already exists.");
                 return BadRequest("A request with the given values already exists."); }
             if(request.Body == null) { request.Body = ""; }
             if(request.Query == null) { request.Query = ""; }
             var retVal = DataService.AddRequest(request, logId);
-            Logger.Info($"[{logId}] Successfully created request with id #{retVal.Id}.");
+            Program.Logger.Info($"[{logId}] Successfully created request with id #{retVal.Id}.");
             return Ok(retVal);
         }
 
@@ -186,11 +186,5 @@ namespace WebApiMock.Controllers {
             DataService.RemoveRequest(id);
             return Ok();
         }
-
-        /// <summary>
-        /// The program's logger.
-        /// </summary>
-        private static Topshelf.Logging.LogWriter Logger => Topshelf.Logging.HostLogger.Get(typeof(Program));
-
     }
 }

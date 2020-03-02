@@ -2,9 +2,13 @@ using System;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 using Topshelf;
+using Topshelf.Logging;
 
 namespace WebApiMock {
+    /// <inheritdoc/>
     public static class Program {
+
+        private static LogWriter _log = null;
 
         /// <summary>
         /// Main entry point of the program.
@@ -36,5 +40,16 @@ namespace WebApiMock {
         /// </summary>
         public static System.IO.DirectoryInfo ApplicationDirectory
             => new System.IO.DirectoryInfo(System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location));
+
+        /// <summary>
+        /// The application's logger.
+        /// </summary>
+        public static LogWriter Logger {
+            get {
+                if(_log == null) {
+                    _log = HostLogger.Get(typeof(Program)); }
+                return _log;
+            }
+        }
     }
 }

@@ -12,6 +12,10 @@ namespace WebApiMock {
         private readonly string[] _cmdlineArgs;
         private IHost _host;
 
+        /// <summary>
+        /// Constructor which takes the application's command line arguments.
+        /// </summary>
+        /// <param name="args"></param>
         public WindowsServiceController(string[] args) => _cmdlineArgs = args;
 
         /// <summary>
@@ -43,6 +47,10 @@ namespace WebApiMock {
         #region IDisposable Support
         private bool disposedValue = false;
 
+        /// <summary>
+        /// Implementation of the IDisposable interface.
+        /// </summary>
+        /// <param name="disposing">For detecting redundant calls.</param>
         protected virtual void Dispose(bool disposing) {
             if (disposedValue) { return; }
             if (disposing) {
@@ -51,6 +59,9 @@ namespace WebApiMock {
             disposedValue = true;
         }
 
+        /// <summary>
+        /// Implementation of the IDisposable interface.
+        /// </summary>
         public void Dispose() { Dispose(true); }
         #endregion
 

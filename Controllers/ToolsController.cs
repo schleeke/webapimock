@@ -29,18 +29,18 @@ namespace WebApiMock.Controllers {
             System.IO.DirectoryInfo directoryInfo;
             System.IO.DirectoryInfo[] subDirectories;
 
-            Logger.Info($"[{transactionId}] Executing ToolsController.Import(\"{path}\")");
+            Program.Logger.Info($"[{transactionId}] Executing ToolsController.Import(\"{path}\")");
             directoryInfo = new System.IO.DirectoryInfo(path);
             if (!directoryInfo.Exists) {
-                Logger.Warn($"[{transactionId}] Canceling import because the path was not found.");
+                Program.Logger.Warn($"[{transactionId}] Canceling import because the path was not found.");
                 return NotFound(); }
             subDirectories = directoryInfo.GetDirectories();
-            Logger.Debug($"[{transactionId}] Processing {subDirectories.Length} directories...");
+            Program.Logger.Debug($"[{transactionId}] Processing {subDirectories.Length} directories...");
             foreach (var subDir in subDirectories) {
-                Logger.Debug($"[{transactionId}] Processing {subDir.Name}...");
+                Program.Logger.Debug($"[{transactionId}] Processing {subDir.Name}...");
                 ImportDirectory(subDir, false, transactionId);
             }
-            Logger.Info($"[{transactionId}] Successfully imported legacy path.");
+            Program.Logger.Info($"[{transactionId}] Successfully imported legacy path.");
             return Ok(path);
         }
 
@@ -56,18 +56,18 @@ namespace WebApiMock.Controllers {
         [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult> Delete() {
             var transactionId = Guid.NewGuid();
-            Logger.Info($"[{transactionId}] Executing ToolsController.Delete()");
+            Program.Logger.Info($"[{transactionId}] Executing ToolsController.Delete()");
             var fileName = System.IO.Path.Combine(Program.ApplicationDirectory.FullName, "mock-data.db");
             if(!System.IO.File.Exists(fileName)) {
-                Logger.Debug($"[{transactionId}] Database file does not exists. Skipping file deletion.");
-                Logger.Info($"[{transactionId}] Successfully removed the existing database.");
+                Program.Logger.Debug($"[{transactionId}] Database file does not exists. Skipping file deletion.");
+                Program.Logger.Info($"[{transactionId}] Successfully removed the existing database.");
                 return Ok(); }
             try {
                 System.IO.File.Delete(fileName); }
             catch (System.IO.IOException ex) {
-                Logger.Error($"[{transactionId}] An error occured while deleting the database file: {ex.GetFullMessage()}");
+                Program.Logger.Error($"[{transactionId}] An error occured while deleting the database file: {ex.GetFullMessage()}");
                 return StatusCode(500, $"Unable to delete the database: {ex.Message}"); }
-            Logger.Info($"[{transactionId}] Successfully removed the existing database.");
+            Program.Logger.Info($"[{transactionId}] Successfully removed the existing database.");
             return Ok();
         }
 
@@ -86,10 +86,10 @@ namespace WebApiMock.Controllers {
             int requestId;
 
             if(dir.Name.Equals("src", comp)) {
-                Logger.Warn($"[{transactionId}] Skipping directory.");
+                Program.Logger.Warn($"[{transactionId}] Skipping directory.");
                 return; }
 
-            Logger.Debug($"[{transactionId}] Processing {(isQueryDirectory ? "query" : "route")} directory.");
+            Program.Logger.Debug($"[{transactionId}] Processing {(isQueryDirectory ? "query" : "route")} directory.");
             if(isQueryDirectory) {
                 route = dir.Parent.Name;
                 query = HttpUtility.UrlDecode(dir.Name); }
@@ -98,7 +98,7 @@ namespace WebApiMock.Controllers {
             responseExists = DataService.ResponseExists(statusCode, response, mimeType, transactionId);
             requestExists = DataService.RequestExists("GET", route, query, body, transactionId);
             if(requestExists && responseExists) {
-                Logger.Info($"[{transactionId}] Response and request already exist for current directory.");
+                Program.Logger.Info($"[{transactionId}] Response and request already exist for current directory.");
                 return; }
             if(!responseExists) {
                 responseId = DataService.AddResponse(new MockupResponse {
@@ -120,20 +120,13 @@ namespace WebApiMock.Controllers {
                 }, transactionId).Id; }
             else {
                 requestId = DataService.GetRequest("GET", route, query, body, transactionId).Id; }
-            Logger.Info($"[{transactionId}] Successfully created request/response pair. IDs: {requestId}/{responseId}.");
+            Program.Logger.Info($"[{transactionId}] Successfully created request/response pair. IDs: {requestId}/{responseId}.");
             if(!isQueryDirectory) {
                 var subDirs = dir.GetDirectories();
-                Logger.Debug($"[{transactionId}] Processing query directories ({subDirs.Length})...");
+                Program.Logger.Debug($"[{transactionId}] Processing query directories ({subDirs.Length})...");
                 foreach (var subDir in subDirs) {
                     ImportDirectory(subDir, true, transactionId); }
             }
         }
-   
-
-        /// <summary>
-        /// The program's logger.
-        /// </summary>
-        private static Topshelf.Logging.LogWriter Logger => Topshelf.Logging.HostLogger.Get(typeof(Program));
-
     }
 }

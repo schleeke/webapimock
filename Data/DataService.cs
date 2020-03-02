@@ -44,12 +44,6 @@ namespace WebApiMock.Data {
     /// </summary>
     public static class DataService {
 
-        /// <inheritdoc />
-        static DataService() {
-            using var context = new DataContext();
-            context.Database.EnsureCreated();
-        }
-
         #region "Response"
 
         /// <summary>
@@ -83,29 +77,29 @@ namespace WebApiMock.Data {
             if (transactionId.HasValue) { logId = transactionId.Value; }
             if (logId.Equals(Guid.Empty)) { logId = Guid.NewGuid(); }
             if (string.IsNullOrEmpty(response)) {
-                Logger.Debug($"[{logId}] Checking if response for HTTP {statusCode} exists (NO RESPONSE)."); }
+                Program.Logger.Debug($"[{logId}] Checking if response for HTTP {statusCode} exists (NO RESPONSE)."); }
             else {
-                Logger.Debug($"[{logId}] Checking if response for HTTP {statusCode} and response for MIME type '{mimeType}' exists."); }
+                Program.Logger.Debug($"[{logId}] Checking if response for HTTP {statusCode} and response for MIME type '{mimeType}' exists."); }
             using var ctx = new DataContext();
             tmpResponses = ctx.Responses.Where(r => r.StatusCode == statusCode).ToList();
             if(tmpResponses.Count < 1) {
-                Logger.Debug($"[{logId}] No response found.");
+                Program.Logger.Debug($"[{logId}] No response found.");
                 return false; }
             if (string.IsNullOrEmpty(response)) {
                 tmpResponses = tmpResponses.Where(r => r.Response == null || string.IsNullOrEmpty(r.Response)).ToList(); }
             else {
                 tmpResponses = tmpResponses.Where(r => r.Response.Equals(response, comp)).ToList(); }
             if (tmpResponses.Count < 1) {
-                Logger.Debug($"[{logId}] No response found.");
+                Program.Logger.Debug($"[{logId}] No response found.");
                 return false; }
             if(string.IsNullOrEmpty(mimeType)) {
                 tmpResponses = tmpResponses.Where(r => r.MimeType == null || string.IsNullOrEmpty(r.MimeType)).ToList(); }
             else {
                 tmpResponses = tmpResponses.Where(r => r.MimeType.Equals(mimeType, comp)).ToList(); }
             if (tmpResponses.Count < 1) {
-                Logger.Debug($"[{logId}] No response found.");
+                Program.Logger.Debug($"[{logId}] No response found.");
                 return false; }
-            Logger.Debug($"[{logId}] Found existing response.");
+            Program.Logger.Debug($"[{logId}] Found existing response.");
             return true;
         }
 
@@ -162,11 +156,11 @@ namespace WebApiMock.Data {
             if (transactionId.HasValue) { logId = transactionId.Value; }
             if (logId.Equals(Guid.Empty)) { logId = Guid.NewGuid(); }
             if (string.IsNullOrEmpty(response)) {
-                Logger.Debug($"[{logId}] Reading response for HTTP status {statusCode}."); }
+                Program.Logger.Debug($"[{logId}] Reading response for HTTP status {statusCode}."); }
             else {
-                Logger.Debug($"[{logId}] Reading response for HTTP status {statusCode} and response for MIME type '{mimeType}'."); }
+                Program.Logger.Debug($"[{logId}] Reading response for HTTP status {statusCode} and response for MIME type '{mimeType}'."); }
             if (!ResponseExists(statusCode, response, mimeType, logId)) {
-                Logger.Error($"[{logId}] Unable to find a response for the status code #{statusCode}.");
+                Program.Logger.Error($"[{logId}] Unable to find a response for the status code #{statusCode}.");
                 throw new WebApiMockException($"Unable to find a response for the status code #{statusCode}.", 2); }
             var comp = StringComparison.InvariantCultureIgnoreCase;
             List<ResponseDefinition> tmpList;
@@ -174,11 +168,11 @@ namespace WebApiMock.Data {
             tmpList = ctx.Responses.Where(r => r.StatusCode == statusCode).ToList();
             if (string.IsNullOrEmpty(response)) {
                 tmpList = tmpList.Where(r => r.Response == null || string.IsNullOrEmpty(r.Response)).ToList();
-                Logger.Debug($"[{logId}] Returning response with no response and HTTP {statusCode} only.");
+                Program.Logger.Debug($"[{logId}] Returning response with no response and HTTP {statusCode} only.");
                 return tmpList.Single().ToMockupResponse(); }
             tmpList = tmpList.Where(r => r.Response.Equals(response, comp)).ToList();
             tmpList = tmpList.Where(r => r.MimeType.Equals(mimeType, comp)).ToList();
-            Logger.Debug($"[{logId}] Returning response for HTTP status {statusCode} and response with MIME type '{mimeType}'.");
+            Program.Logger.Debug($"[{logId}] Returning response for HTTP status {statusCode} and response with MIME type '{mimeType}'.");
             return tmpList.Single().ToMockupResponse();
         }
 
@@ -196,10 +190,10 @@ namespace WebApiMock.Data {
             if (transactionId.HasValue) { logId = transactionId.Value; }
             if (logId.Equals(Guid.Empty)) { logId = Guid.NewGuid(); }
             if (response.Id != 0) {
-                Logger.Error($"[{logId}] The id for a new response must be 0.");
+                Program.Logger.Error($"[{logId}] The id for a new response must be 0.");
                 throw new WebApiMockException("The id for a new response must be 0.", 3); }
             if(ResponseExists(response.StatusCode, response.Response, response.MimeType, logId)) {
-                Logger.Error($"[{logId}] The response already exists.");
+                Program.Logger.Error($"[{logId}] The response already exists.");
                 throw new WebApiMockException("The response already exists.", 4); }
             var newData = new ResponseDefinition {
                 StatusCode = response.StatusCode,
@@ -208,7 +202,7 @@ namespace WebApiMock.Data {
             using var ctx = new DataContext();
             ctx.Responses.Add(newData);
             ctx.SaveChanges();
-            Logger.Info($"[{logId}] Successfully created response (HTTP {response.StatusCode}) with id #{newData.Id}.");
+            Program.Logger.Info($"[{logId}] Successfully created response (HTTP {response.StatusCode}) with id #{newData.Id}.");
             return newData.ToMockupResponse();
         }
 
@@ -280,11 +274,25 @@ namespace WebApiMock.Data {
 
         #region "Request"
 
+        /// <summary>
+        /// Checks if a request with the given id exists.
+        /// </summary>
+        /// <param name="id">The id to check.</param>
+        /// <returns>True, if a record with the id was found.</returns>
         public static bool RequestExistsForId(int id) {
             using var ctx = new DataContext();
             return ctx.Requests.Any(r => r.Id.Equals(id));
         }
 
+        /// <summary>
+        /// Checks if a request with the given values exists.
+        /// </summary>
+        /// <param name="httpMethod">The HTTP method for the request.</param>
+        /// <param name="route">The route/relative URI for the request.</param>
+        /// <param name="query">The query part of the URI</param>
+        /// <param name="body">The body for the request.</param>
+        /// <param name="transactionId">An optional id for logging purpose.</param>
+        /// <returns>True if a request with the given values exists.</returns>
         public static bool RequestExists(string httpMethod, string route, string query="", string body="", Guid? transactionId = null) {
             var logId = Guid.Empty;
             var method = httpMethod.ToMethodEnum();
@@ -294,33 +302,39 @@ namespace WebApiMock.Data {
             if (transactionId.HasValue) { logId = transactionId.Value; }
             if (logId.Equals(Guid.Empty)) { logId = Guid.NewGuid(); }
             if(method == HttpMethodEnum.Unknown) {
-                Logger.Error($"[{logId}] Unknown HTTP method '{httpMethod.ToUpper()}'.");
+                Program.Logger.Error($"[{logId}] Unknown HTTP method '{httpMethod.ToUpper()}'.");
                 throw new WebApiMockException($"Unknown HTTP method '{httpMethod}'.", 10); }
             if (route.StartsWith("/")) { route = route.Substring(1); }
             using var ctx = new DataContext();
             tmpResult = ctx.Requests.Where(r => r.Method == method).ToList();
             if(tmpResult.Count() < 1) {
-                Logger.Info($"[{logId}] No existing request(s) found.");
+                Program.Logger.Info($"[{logId}] No existing request(s) found.");
                 return false; }
             tmpResult = tmpResult.Where(r => r.Route.Equals(route, comp)).ToList();
             if (tmpResult.Count() < 1) {
-                Logger.Info($"[{logId}] No existing request(s) found.");
+                Program.Logger.Info($"[{logId}] No existing request(s) found.");
                 return false; }
             if(string.IsNullOrEmpty(query)) {
                 tmpResult = tmpResult.Where(r => r.Query == null || string.IsNullOrEmpty(r.Query)).ToList(); }
             else {
                 tmpResult = tmpResult.Where(r => r.Query.Equals(query, comp)).ToList(); }
             if (tmpResult.Count() < 1) {
-                Logger.Info($"[{logId}] No existing request(s) found.");
+                Program.Logger.Info($"[{logId}] No existing request(s) found.");
                 return false; }
             if(string.IsNullOrEmpty(body)) {
                 tmpResult = tmpResult.Where(r => r.Body == null || string.IsNullOrEmpty(r.Body)).ToList(); }
             else {
                 tmpResult = tmpResult.Where(r => r.Body.Equals(body, comp)).ToList(); }
-            Logger.Info(tmpResult.Count > 0 ? $"[{logId}] Found existing request(s)." : $"[{logId}] No existing request(s) found.");
+            Program.Logger.Info(tmpResult.Count > 0 ? $"[{logId}] Found existing request(s)." : $"[{logId}] No existing request(s) found.");
             return (tmpResult.Count() > 0);
         }
 
+        /// <summary>
+        /// Returns a request for a given id.
+        /// </summary>
+        /// <param name="id">The id for the request.</param>
+        /// <returns>The record with the given id.</returns>
+        /// <exception cref="WebApiMockException">Thrown with id #11 if no request with the given id exists.</exception>
         public static MockupRequest GetRequestById(int id) {
             using var ctx = new DataContext();
             if (!ctx.Requests.Any(req => req.Id.Equals(id))) { throw new WebApiMockException($"No request with id #{id} found.", 11); }
@@ -347,37 +361,43 @@ namespace WebApiMock.Data {
             if (transactionId.HasValue) { logId = transactionId.Value; }
             if (logId.Equals(Guid.Empty)) { logId = Guid.NewGuid(); }
             if (method == HttpMethodEnum.Unknown) {
-                Logger.Error($"[{logId}] Unknown HTTP method '{httpMethod.ToUpper()}'.");
+                Program.Logger.Error($"[{logId}] Unknown HTTP method '{httpMethod.ToUpper()}'.");
                 throw new WebApiMockException($"Unknown HTTP method '{httpMethod}'.", 10); }
             if (route.StartsWith("/")) {
                 route = route.Substring(1); }
             using var ctx = new DataContext();
             tmpList = ctx.Requests.Where(req => req.Method == method).ToList();
             if(tmpList.Count < 1) {
-                Logger.Error($"[{logId}] No request found.");
+                Program.Logger.Error($"[{logId}] No request found.");
                 throw new WebApiMockException("No request found.", 13); }
             tmpList = tmpList.Where(req => req.Route.Equals(route, comp)).ToList();
             if (tmpList.Count < 1) {
-                Logger.Error($"[{logId}] No request found.");
+                Program.Logger.Error($"[{logId}] No request found.");
                 throw new WebApiMockException("No request found.", 13); }
             if (string.IsNullOrEmpty(query)) {
                 tmpList = tmpList.Where(r => r.Query == null || string.IsNullOrEmpty(r.Query)).ToList(); }
             else {
                 tmpList = tmpList.Where(req => req.Query.Equals(query, comp)).ToList(); }
             if (tmpList.Count < 1) {
-                Logger.Error($"[{logId}] No request found.");
+                Program.Logger.Error($"[{logId}] No request found.");
                 throw new WebApiMockException("No request found.", 13); }
             if(string.IsNullOrEmpty(body)) {
                 tmpList = tmpList.Where(r => r.Body == null || string.IsNullOrEmpty(r.Body)).ToList(); }
             else {
                 tmpList = tmpList.Where(req => req.Body.Equals(body, comp)).ToList(); }
             if (tmpList.Count < 1) {
-                Logger.Error($"[{logId}] No request found.");
+                Program.Logger.Error($"[{logId}] No request found.");
                 throw new WebApiMockException("No request found.", 13); }
-            Logger.Info($"[{logId}] Successfully fetched request.");
+            Program.Logger.Info($"[{logId}] Successfully fetched request.");
             return tmpList.Single().ToMockupRequest();
         }
 
+        /// <summary>
+        /// Adds a new request to the database.
+        /// </summary>
+        /// <param name="request">The request to add. Its id must be 0 (zero).</param>
+        /// <param name="transactionId">An (optional) id for logging purpose.</param>
+        /// <returns>The added request with an updated id.</returns>
         public static MockupRequest AddRequest(MockupRequest request, Guid? transactionId = null) {
             var logId = Guid.Empty;
             var method = request.HttpMethod.ToMethodEnum();
@@ -406,7 +426,7 @@ namespace WebApiMock.Data {
             using var ctx = new DataContext();
             ctx.Requests.Add(newData);
             ctx.SaveChanges();
-            Logger.Info($"[{logId}] Successfully created request #{newData.Id} ({request.Route}) [{request.HttpMethod}].");
+            Program.Logger.Info($"[{logId}] Successfully created request #{newData.Id} ({request.Route}) [{request.HttpMethod}].");
             return newData.ToMockupRequest();
         }
 
@@ -430,6 +450,11 @@ namespace WebApiMock.Data {
             ctx.SaveChanges();
         }
         
+        /// <summary>
+        /// Sets the reponse id for a given request.
+        /// </summary>
+        /// <param name="id">The id of the request.</param>
+        /// <param name="responseId">The new id of the response.</param>
         public static void SetRequestResponseId(int id, int responseId) {
             if (!RequestExistsForId(id)) { throw new WebApiMockException($"No request with id #{id} found.", 22); }
             if (!ResponseExistsForId(responseId)) { throw new WebApiMockException($"No response with id #{id} found.", 23); }
@@ -451,6 +476,11 @@ namespace WebApiMock.Data {
             return result;
         }
 
+        /// <summary>
+        /// Sets a new route value for a request.
+        /// </summary>
+        /// <param name="id">The id of the request.</param>
+        /// <param name="route">The new value for the route/relative URL part.</param>
         public static void SetRequestRoute(int id, string route) {
             if (!RequestExistsForId(id)) {
                 throw new WebApiMockException($"No request with id #{id} found.", 22); }
@@ -464,6 +494,11 @@ namespace WebApiMock.Data {
             ctx.SaveChanges();
         }
 
+        /// <summary>
+        /// Sets a new query value for a request.
+        /// </summary>
+        /// <param name="id">The id of the request.</param>
+        /// <param name="query">The new query value.</param>
         public static void SetRequestQuery(int id, string query) {
             if (!RequestExistsForId(id)) {
                 throw new WebApiMockException($"No request with id #{id} found.", 22); }
@@ -477,6 +512,11 @@ namespace WebApiMock.Data {
             ctx.SaveChanges();
         }
 
+        /// <summary>
+        /// Sets a new body value for an existing request.
+        /// </summary>
+        /// <param name="id">The id of the request.</param>
+        /// <param name="body">The new value for the body.</param>
         public static void SetRequestBody(int id, string body) {
             if (!RequestExistsForId(id)) {
                 throw new WebApiMockException($"No request with id #{id} found.", 22); }
@@ -490,6 +530,11 @@ namespace WebApiMock.Data {
             ctx.SaveChanges();
         }
 
+        /// <summary>
+        /// Sets a new HTTP method for an existing request.
+        /// </summary>
+        /// <param name="id">The id of the request.</param>
+        /// <param name="httpMethod">The new value for the HTTP method.</param>
         public static void SetRequestMethod(int id, string httpMethod) {
             if (!RequestExistsForId(id)) {
                 throw new WebApiMockException($"No request with id #{id} found.", 22); }
@@ -508,12 +553,6 @@ namespace WebApiMock.Data {
         }
 
         #endregion
-
-
-        /// <summary>
-        /// The program's logger.
-        /// </summary>
-        private static Topshelf.Logging.LogWriter Logger => Topshelf.Logging.HostLogger.Get(typeof(Program));
 
     }
 }

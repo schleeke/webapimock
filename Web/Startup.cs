@@ -1,12 +1,12 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Configuration.Json;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
 using System.IO;
 using System.Reflection;
-using WebApiMock.Data;
 
 namespace WebApiMock.Web {
     /// <summary>
@@ -24,17 +24,18 @@ namespace WebApiMock.Web {
             var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
             var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
 
-            var uri = GetHttpsUri();
+            Uri.TryCreate("/gui", UriKind.Relative, out Uri httpsUri);
             services.AddControllers();
             services.AddSwaggerGen(options => {
                 options.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo {
                     Contact = new Microsoft.OpenApi.Models.OpenApiContact {
                         Name = "Dashboard",
-                        Url = uri },
+                        Url = httpsUri },
                     Title = "Web API mockup service",
                     Version = "v1",
                     Description = "Add, remove or alter existing mockup definitions." });
-                options.IncludeXmlComments(xmlPath);
+                if(File.Exists(xmlPath)) {
+                    options.IncludeXmlComments(xmlPath); }
             });
         }
 
@@ -42,33 +43,86 @@ namespace WebApiMock.Web {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "Implements base class method.")]
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env) {
             if (env.IsDevelopment()) {
-                app.UseDeveloperExceptionPage();
-            }
+                app.UseDeveloperExceptionPage(); }
             app.UseSwagger();
             app.UseMiddleware<MockupMiddleware>();
+            app.UseCors(bld => {
+                bld.AllowAnyOrigin();
+                bld.AllowAnyHeader();
+                bld.AllowAnyMethod(); });
             app.UseDefaultFiles(new DefaultFilesOptions {
-                RequestPath = "/gui"
-            });
+                RequestPath = "/gui" });
             app.UseStaticFiles("/gui");
             app.UseSwaggerUI(options => {
                 options.RoutePrefix = string.Empty;
-                options.SwaggerEndpoint("/swagger/v1/swagger.json", "Web API mockup service");
-            });
+                options.SwaggerEndpoint("/swagger/v1/swagger.json", "Web API mockup service"); });
             app.UseRouting();
             app.UseEndpoints(endpoints => {
-                endpoints.MapControllers();
-            });
+                endpoints.MapControllers(); });
+            var httpsUrl = GetHttpsUri();
+            var httpUrl = GetHttpUri();
+            if(!string.IsNullOrEmpty(httpsUrl)) {
+                Program.Logger.Info($"Listening @{httpsUrl}");
+                Program.HttpsUrl = httpsUrl; }
+            if (!string.IsNullOrEmpty(httpUrl)) {
+                Program.Logger.Info($"Listening @{httpUrl}");
+                Program.HttpUrl = httpUrl; }
+            Program.AutoGenerate = GetAutoGenerate();
+            Program.MockupRelativePath = GetRelativeMockupPath();
+            Program.Logger.Debug($"Settings: auto-generate={Program.AutoGenerate}, mockup-path={Program.MockupRelativePath}");
         }
-        
-        private Uri GetHttpsUri() {
-            foreach (var category in _config.GetChildren()) {
-                if(category.Key.Equals("ASPNETCORE_URLS", StringComparison.InvariantCultureIgnoreCase) == false) { continue; }
-                var urlStrings = category.Value.Split(';');
-                foreach (var url in urlStrings) {
-                    var newUri = new Uri(url + "/gui");
-                    if(newUri.Scheme.IndexOf("https", StringComparison.InvariantCultureIgnoreCase) < 0) { continue; }
-                    return newUri; } }
-            return null;
+
+        private string GetHttpsUri() {
+            var configProviders = ((ConfigurationRoot)_config).Providers;
+            foreach (var provider in configProviders) {
+                if (typeof(JsonConfigurationProvider) != provider.GetType()) { continue; }
+                var propertyInfo = provider.GetType().BaseType.BaseType.GetProperty("Data", BindingFlags.NonPublic | BindingFlags.Instance);
+                var configValues = propertyInfo.GetValue(provider) as System.Collections.Generic.IDictionary<string, string>;
+                foreach (var key in configValues.Keys) {
+                    if (!key.Equals("Kestrel:Endpoints:Https:Url", StringComparison.InvariantCulture)) { continue; }
+                    var url = configValues[key];
+                    return url; } }
+            return string.Empty;
+        }
+
+        private string GetHttpUri() {
+            var configProviders = ((ConfigurationRoot)_config).Providers;
+            foreach (var provider in configProviders) {
+                if (typeof(JsonConfigurationProvider) != provider.GetType()) { continue; }
+                var propertyInfo = provider.GetType().BaseType.BaseType.GetProperty("Data", BindingFlags.NonPublic | BindingFlags.Instance);
+                var configValues = propertyInfo.GetValue(provider) as System.Collections.Generic.IDictionary<string, string>;
+                foreach (var key in configValues.Keys) {
+                    if (!key.Equals("Kestrel:Endpoints:Http:Url", StringComparison.InvariantCulture)) { continue; }
+                    var url = configValues[key];
+                    return url; } }
+            return string.Empty;
+        }
+
+        private bool GetAutoGenerate() {
+            var configProviders = ((ConfigurationRoot)_config).Providers;
+            foreach (var provider in configProviders) {
+                if (typeof(JsonConfigurationProvider) != provider.GetType()) { continue; }
+                var propertyInfo = provider.GetType().BaseType.BaseType.GetProperty("Data", BindingFlags.NonPublic | BindingFlags.Instance);
+                var configValues = propertyInfo.GetValue(provider) as System.Collections.Generic.IDictionary<string, string>;
+                foreach (var key in configValues.Keys) {
+                    if (!key.Equals("WebApiMockSettings:AutoGenerateAnswer", StringComparison.InvariantCulture)) { continue; }
+                    var boolString = configValues[key];
+                    return boolString.Equals("True", StringComparison.InvariantCultureIgnoreCase); } }
+            return false;
+        }
+
+        private string GetRelativeMockupPath() {
+            var relPath = Program.MockupRelativePath;
+            var configProviders = ((ConfigurationRoot)_config).Providers;
+            
+            foreach (var provider in configProviders) {
+                if (typeof(JsonConfigurationProvider) != provider.GetType()) { continue; }
+                var propertyInfo = provider.GetType().BaseType.BaseType.GetProperty("Data", BindingFlags.NonPublic | BindingFlags.Instance);
+                var configValues = propertyInfo.GetValue(provider) as System.Collections.Generic.IDictionary<string, string>;
+                foreach (var key in configValues.Keys) {
+                    if (!key.Equals("WebApiMockSettings:MockupPrefixRoute", StringComparison.InvariantCulture)) { continue; }
+                    relPath = configValues[key]; } }
+            return relPath;
         }
     }
 }

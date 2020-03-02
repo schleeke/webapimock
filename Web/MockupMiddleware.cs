@@ -21,9 +21,11 @@ namespace WebApiMock.Web {
             string query;
             string body;
 
+            Program.Logger.Debug($"Incoming request: {context.Request.Path}.");
             if (!context.Request.Path.HasValue
-              || context.Request.Path.Value.IndexOf("/mockup", System.StringComparison.InvariantCultureIgnoreCase) != 0) {
+              || context.Request.Path.Value.IndexOf($"/{Program.MockupRelativePath}", System.StringComparison.InvariantCultureIgnoreCase) != 0) {
                 await _next(context);
+                Program.Logger.Debug($"No mock-up because path does not start with '{Program.MockupRelativePath}'.");
                 return; }
             var (Path, Query, Body, Method) = context.GetRequestInfo();
             path = Path;
@@ -60,6 +62,7 @@ namespace WebApiMock.Web {
             context.Response.ContentType = responseInfo.MimeType;
             await context.Response.WriteAsync(responseInfo.Response);
             await context.Response.CompleteAsync();
+            Program.Logger.Debug("Successfully mocked request.");
         }
 
         /// <summary>

@@ -19,6 +19,7 @@ namespace WebApiMock {
         ///  The value corresponds to the <see cref="TopshelfExitCode"/> enumeration.
         /// </remarks>
         public static int Main(string[] args) {
+          MockupRelativePath = "mockup";
           var retVal = HostFactory.Run(config => {
               config.OnException((ex) => Console.WriteLine($"An unexpected error occured: {ex.Message}"));
               config.RunAsLocalSystem();
@@ -46,10 +47,32 @@ namespace WebApiMock {
         /// </summary>
         public static LogWriter Logger {
             get {
-                if(_log == null) {
-                    _log = HostLogger.Get(typeof(Program)); }
+                if(_log == null) { _log = HostLogger.Get(typeof(Program)); }
                 return _log;
             }
         }
+
+        /// <summary>
+        /// The "prefix" of the route/relative url part that indicates a mock-up call.
+        /// </summary>
+        /// <remarks>
+        /// Only requests starting with that prefix will be routed to the mock-up "controller".
+        /// </remarks>
+        public static string MockupRelativePath { get; set; }
+
+        /// <summary>
+        /// The HTTPS URL for the service.
+        /// </summary>
+        public static string HttpsUrl { get; set; }
+
+        /// <summary>
+        /// The HTTP URL for the service.
+        /// </summary>
+        public static string HttpUrl { get; set; }
+
+        /// <summary>
+        /// Specifies if unknown requests should generate a default mock-up definition.
+        /// </summary>
+        public static bool AutoGenerate { get; set; }
     }
 }

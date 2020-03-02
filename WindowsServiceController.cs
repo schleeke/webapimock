@@ -29,9 +29,9 @@ namespace WebApiMock {
                 bld.UseKestrel(options => {
                     options.AllowSynchronousIO = true;
                 });
-            }).Build();
+             }).Build();
             _host.RunAsync();
-            return true;
+             return true;
         }
 
         /// <summary>

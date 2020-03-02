@@ -554,5 +554,21 @@ namespace WebApiMock.Data {
 
         #endregion
 
+        /// <summary>
+        /// Sets the request method for a certain route to the given HTTP method.
+        /// </summary>
+        /// <param name="route">The route to change.</param>
+        /// <param name="httpMethod">The new method.</param>
+        public static void SetMethodForRoute(string route, string httpMethod) {
+            var method = httpMethod.ToMethodEnum();
+            if (method == HttpMethodEnum.Unknown) { throw new WebApiMockException($"Invalid HTTP method '{httpMethod}'.", 97); }
+            using(var ctx = new DataContext()) {
+                foreach (var request in ctx.Requests) {
+                    if(!request.Route.Equals(route, StringComparison.InvariantCultureIgnoreCase)) { continue; }
+                    request.Method = method;
+                    ctx.Requests.Update(request); }
+                ctx.SaveChanges(); }
+        }
+
     }
 }

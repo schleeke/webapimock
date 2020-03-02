@@ -71,6 +71,31 @@ namespace WebApiMock.Controllers {
             return Ok();
         }
 
+        /// <summary>
+        /// Sets all request definitions for a given route to a certain HTTP method.
+        /// </summary>
+        /// <param name="route">The route to change the methods for.</param>
+        /// <param name="httpMethod">The new HTTP method.</param>
+        /// <remarks>
+        /// Sample request:
+        /// 
+        /// GET /tools/setmethod?route=myroute&amp;httpmethod=GET
+        /// </remarks>
+        /// <returns>Nothing</returns>
+        /// <response code="200">OK</response>
+        /// <response code="500">An error occured while execution.</response>
+        [HttpGet]
+        [Route("setmethod")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult> SetMethod(string route, string httpMethod) {
+            try {
+                DataService.SetMethodForRoute(route, httpMethod); }
+            catch (WebApiMockException ex) {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.GetFullMessage()); }
+            return Ok();
+        }
+
     
         private void ImportDirectory(System.IO.DirectoryInfo dir, bool isQueryDirectory, Guid transactionId) {
             var comp = StringComparison.InvariantCultureIgnoreCase;

@@ -32,8 +32,8 @@ namespace WebApiMock.Web {
             HttpMethodEnum method;
 
             path = context.Request.Path.Value;
-            if(path.IndexOf("/mockup", System.StringComparison.InvariantCultureIgnoreCase) == 0) {
-                path = path.Substring("/mockup".Length); }
+            if(path.IndexOf($"/{Program.MockupRelativePath}", System.StringComparison.InvariantCultureIgnoreCase) == 0) {
+                path = path.Substring($"/{Program.MockupRelativePath}".Length); }
             if (string.IsNullOrEmpty(path)) {
                 path = "/"; }
             query = context.Request.QueryString.HasValue

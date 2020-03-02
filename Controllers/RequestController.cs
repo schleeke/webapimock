@@ -7,13 +7,13 @@ using WebApiMock.Data;
 
 namespace WebApiMock.Controllers {
 
+
+
+    #pragma warning disable 1998
     /// <inheritdoc/>
     [Route("[controller]")]
     [ApiController]
     public class RequestController : ControllerBase {
-
-        /// <inheritdoc/>
-        public RequestController(DataService data) { }
 
         /// <summary>
         /// Gets a list of all existing request definitions.

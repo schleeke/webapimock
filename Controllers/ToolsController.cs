@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
 using Microsoft.AspNetCore.Http;
@@ -8,14 +7,11 @@ using WebApiMock.Data;
 
 namespace WebApiMock.Controllers {
 
+#pragma warning disable 1998
     /// <inheritdoc/>
     [Route("[controller]")]
     [ApiController]
     public class ToolsController : ControllerBase {
-        private readonly DataService _data;
-
-        /// <inheritdoc/>
-        public ToolsController(DataService data) => _data = data;
 
         /// <summary>
         /// Imports the definitions from the old mock-up service.
@@ -112,7 +108,7 @@ namespace WebApiMock.Controllers {
                     StatusCode = statusCode                    
                 }, transactionId).Id; }
             else {
-                responseId = _data.GetResponse(statusCode, response, mimeType, transactionId).Id; }
+                responseId = DataService.GetResponse(statusCode, response, mimeType, transactionId).Id; }
             if(!requestExists) {
                 requestId = DataService.AddRequest(new MockupRequest {
                     Id = 0,
@@ -123,7 +119,7 @@ namespace WebApiMock.Controllers {
                     ResponseId = responseId
                 }, transactionId).Id; }
             else {
-                requestId = _data.GetRequest("GET", route, query, body, transactionId).Id; }
+                requestId = DataService.GetRequest("GET", route, query, body, transactionId).Id; }
             Logger.Info($"[{transactionId}] Successfully created request/response pair. IDs: {requestId}/{responseId}.");
             if(!isQueryDirectory) {
                 var subDirs = dir.GetDirectories();

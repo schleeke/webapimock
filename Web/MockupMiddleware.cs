@@ -8,9 +8,12 @@ namespace WebApiMock.Web {
     /// </summary>
     public class MockupMiddleware {
         private readonly RequestDelegate _next;
+
+        /// <inheritdoc />
         public MockupMiddleware(RequestDelegate next) => _next = next;
 
-        public async Task InvokeAsync(HttpContext context, DataService data) {
+        /// <inheritdoc />
+        public async Task InvokeAsync(HttpContext context) {
             MockupRequest requestInfo;
             MockupResponse responseInfo;
             HttpMethodEnum method;
@@ -22,25 +25,25 @@ namespace WebApiMock.Web {
               || context.Request.Path.Value.IndexOf("/mockup", System.StringComparison.InvariantCultureIgnoreCase) != 0) {
                 await _next(context);
                 return; }
-            var pathInfo = context.GetRequestInfo();
-            path = pathInfo.Path;
-            query = pathInfo.Query;
-            body = pathInfo.Body;
-            method = pathInfo.Method;
-            if (!data.RequestExists(method.ToMethodString(), path, query, body)) {
+            var (Path, Query, Body, Method) = context.GetRequestInfo();
+            path = Path;
+            query = Query;
+            body = Body;
+            method = Method;
+            if (!DataService.RequestExists(method.ToMethodString(), path, query, body)) {
                 Logger.Debug($"No request '{path}' [{context.Request.Method}] exists.");
                 context.Response.StatusCode = 501;
                 await context.Response.WriteAsync("Not implemented");
                 await context.Response.CompleteAsync();
                 return; }
             try {
-                requestInfo = data.GetRequest(method.ToMethodString(), path, query, body); }
+                requestInfo = DataService.GetRequest(method.ToMethodString(), path, query, body); }
             catch (WebApiMockException ex) {
                 if(ex.ErrorCode == 13) {
                     Logger.Error($"$Unable to find request [{method.ToMethodString()}] for '{path}' in database."); }
                 throw; }
             try {
-                responseInfo = data.GetResponseById(requestInfo.ResponseId); }
+                responseInfo = DataService.GetResponseById(requestInfo.ResponseId); }
             catch (WebApiMockException ex) {
                 if(ex.ErrorCode == 11) {
                     Logger.Error($"Unable to find response for id #{requestInfo.ResponseId}."); }

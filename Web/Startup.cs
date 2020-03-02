@@ -19,14 +19,13 @@ namespace WebApiMock.Web {
         public Startup(IConfiguration config) => _config = config;
 
 
-
+        /// <inheritdoc/>
         public void ConfigureServices(IServiceCollection services) {
             var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
             var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
 
             var uri = GetHttpsUri();
             services.AddControllers();
-            services.AddSingleton<DataService>();
             services.AddSwaggerGen(options => {
                 options.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo {
                     Contact = new Microsoft.OpenApi.Models.OpenApiContact {
@@ -39,6 +38,8 @@ namespace WebApiMock.Web {
             });
         }
 
+        /// <inheritdoc/>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "Implements base class method.")]
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env) {
             if (env.IsDevelopment()) {
                 app.UseDeveloperExceptionPage();

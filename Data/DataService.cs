@@ -42,12 +42,10 @@ namespace WebApiMock.Data {
     /// <summary>
     /// Service / repository for the mockup data access.
     /// </summary>
-    public class DataService {
-
-        private readonly Guid NULL_GUID = Guid.Empty;
+    public static class DataService {
 
         /// <inheritdoc />
-        public DataService() {
+        static DataService() {
             using var context = new DataContext();
             context.Database.EnsureCreated();
         }
@@ -158,11 +156,11 @@ namespace WebApiMock.Data {
         /// <param name="transactionId">The identifier for the current transaction. For logging purpose.</param>
         /// <returns>The mockup response record for the given values.</returns>
         /// <exception cref="WebApiMockException">Thrown with error code #2 if no matching response was found.</exception>
-        public MockupResponse GetResponse(int statusCode, string response="", string mimeType="", Guid? transactionId = null) {
+        public static MockupResponse GetResponse(int statusCode, string response="", string mimeType="", Guid? transactionId = null) {
             var logId = Guid.Empty;
 
             if (transactionId.HasValue) { logId = transactionId.Value; }
-            if (logId.Equals(NULL_GUID)) { logId = Guid.NewGuid(); }
+            if (logId.Equals(Guid.Empty)) { logId = Guid.NewGuid(); }
             if (string.IsNullOrEmpty(response)) {
                 Logger.Debug($"[{logId}] Reading response for HTTP status {statusCode}."); }
             else {
@@ -340,14 +338,14 @@ namespace WebApiMock.Data {
         /// <returns>The mockup request record with the given values.</returns>
         /// <exception cref="WebApiMockException">Thrown with error code #10 if the HTTP method is unknown.</exception>
         /// <exception cref="WebApiMockException">Thrown with error code #13 if no request with the given values was found.</exception>
-        public MockupRequest GetRequest(string httpMethod, string route, string query="", string body="", Guid? transactionId = null) {
+        public static MockupRequest GetRequest(string httpMethod, string route, string query="", string body="", Guid? transactionId = null) {
             var logId = Guid.Empty;
             var method = httpMethod.ToMethodEnum();
             var comp = StringComparison.InvariantCultureIgnoreCase;
             List<RequestDefinition> tmpList;
 
             if (transactionId.HasValue) { logId = transactionId.Value; }
-            if (logId.Equals(NULL_GUID)) { logId = Guid.NewGuid(); }
+            if (logId.Equals(Guid.Empty)) { logId = Guid.NewGuid(); }
             if (method == HttpMethodEnum.Unknown) {
                 Logger.Error($"[{logId}] Unknown HTTP method '{httpMethod.ToUpper()}'.");
                 throw new WebApiMockException($"Unknown HTTP method '{httpMethod}'.", 10); }

@@ -5,14 +5,11 @@ using Microsoft.AspNetCore.Mvc;
 using WebApiMock.Data;
 
 namespace WebApiMock.Controllers {
+    #pragma warning disable 1998
     /// <inheritdoc/>
     [Route("[controller]")]
     [ApiController]
     public class ResponseController : ControllerBase {
-        private readonly DataService _data;
-
-        /// <inheritdoc/>
-        public ResponseController(DataService data) => _data = data;
 
         /// <summary>
         /// Gets a list of all existing response definitions.
@@ -30,7 +27,7 @@ namespace WebApiMock.Controllers {
         [ProducesResponseType(typeof(IEnumerable<MockupResponse>), StatusCodes.Status200OK)]
         public async Task<ActionResult<IEnumerable<MockupResponse>>> Get() {
             Logger.Info("Executing ToolsController.Get()");
-            MockupResponse[] result = _data.GetResponses();
+            MockupResponse[] result = DataService.GetResponses();
             Logger.Info($"Returning {result.Length} responses.");
             return Ok(result);
         }
@@ -56,7 +53,7 @@ namespace WebApiMock.Controllers {
             MockupResponse result;
             Logger.Info($"Executing ToolsController.Get({id})");
             try {
-                result = _data.GetResponseById(id); }
+                result = DataService.GetResponseById(id); }
             catch (WebApiMockException ex) {
                 if (ex.ErrorCode == 11) {
                     result = null; }
@@ -103,10 +100,10 @@ namespace WebApiMock.Controllers {
                 Logger.Error("The new response definition does not have an empty id.");
                 return StatusCode(409, "The new response definition does not have an empty id.");
             }
-            if (_data.ResponseExists(response.StatusCode, response.Response, response.MimeType)) {
+            if (DataService.ResponseExists(response.StatusCode, response.Response, response.MimeType)) {
                 Logger.Error("A response with the given values already exists.");
                 return BadRequest("A response with the given values already exists."); }
-            var retVal = _data.AddResponse(response);
+            var retVal = DataService.AddResponse(response);
             Logger.Info($"Successfully created new reponse with id #{retVal.Id}.");
             return Ok(retVal);
         }
@@ -135,11 +132,11 @@ namespace WebApiMock.Controllers {
                 Logger.Error("The id is 0.");
                 return BadRequest("The id is 0.");
             }
-            if (!_data.ResponseExistsForId(id)) {
+            if (!DataService.ResponseExistsForId(id)) {
                 Logger.Error($"No request with id #{id} found.");
                 return NotFound($"No request with id #{id} found.");
             }
-            _data.RemoveResponse(id);
+            DataService.RemoveResponse(id);
             Logger.Info($"Successfully removed response with id #{id}.");
             return Ok();
         }
@@ -177,19 +174,19 @@ namespace WebApiMock.Controllers {
             if (!response.Id.Equals(id)) {
                 Logger.Error("Ids mismatch.");
                 return StatusCode(406, "Ids mismatch."); }
-            if (!_data.ResponseExistsForId(response.Id)) {
+            if (!DataService.ResponseExistsForId(response.Id)) {
                 Logger.Error($"No response definition found with id #{id}.");
                 return NotFound($"No response definition found with id #{id}."); }
-            existingResponse = _data.GetResponseById(id);
+            existingResponse = DataService.GetResponseById(id);
             if(existingResponse.StatusCode != response.StatusCode) {
                 Logger.Debug("Updating HTTP status code.");
-                _data.SetResponseStatusCode(id, response.StatusCode); }
+                DataService.SetResponseStatusCode(id, response.StatusCode); }
             if (!existingResponse.Response.Equals(response.Response)) {
                 Logger.Debug("Updating response content.");
-                _data.SetResponseResponse(id, response.Response); }
+                DataService.SetResponseResponse(id, response.Response); }
             if (!existingResponse.MimeType.Equals(response.MimeType)) {
                 Logger.Debug("Updating MIME type.");
-                _data.SetResponseMimeType(id, response.MimeType); }
+                DataService.SetResponseMimeType(id, response.MimeType); }
             Logger.Info($"Successfully updated response #{id}.");
             return Ok(response);
         }

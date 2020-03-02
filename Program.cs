@@ -24,9 +24,9 @@ namespace WebApiMock {
               config.RunAsLocalSystem();
               config.UseLog4Net("logging.config", true);
               config.StartAutomaticallyDelayed();
-              config.SetServiceName("webapimock");
-              config.SetDescription("Mockup service/tool for web APIs.");
-              config.SetDisplayName("Web API Mockup Service");
+              config.SetServiceName("webapimock.core");
+              config.SetDescription(".NET Core mock-up service/tool for web APIs.");
+              config.SetDisplayName(".NET Core Web API Mockup Service");
               config.Service<WindowsServiceController>(svc => {
                   svc.ConstructUsing(() => new WindowsServiceController(args));
                   svc.WhenStarted((wsc, crtl) => wsc.Start(crtl));

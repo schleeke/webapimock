@@ -9,8 +9,10 @@
     <Authors>Schlee, Kevin</Authors>
     <Company>Schlee, Kevin</Company>
     <Product>Web API mock-up service</Product>
+    <IsPackable>true</IsPackable>
     <Description>Application/service/daemon for mocking responses for all kind HTTP requests.</Description>
     <PackageTags>webapi mockup http</PackageTags>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

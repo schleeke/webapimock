@@ -116,6 +116,7 @@ function gotoHome() {
 function getExistingResponses() {
     var url = window.location;
     var url = url.protocol + "//" + url.host + "/response";
+    console.log("Calling " + url);
     $.ajax({
         url: url,
         type: 'GET',
@@ -124,8 +125,15 @@ function getExistingResponses() {
             if (data == "") {
                 return; }
             var count = data.length;
+            $('#responsetable').empty();
+            for (var i = 0; i < count; i++) {
+                var item = data[i];
+                $('#responsetable').append('<tr><td>' + item.statusCode + '</td><td>' + item.response + '</td><td>' + item.mimeType + '</td></tr>');
+            }
         },
         error: function (request, status, errorText) {
+            console.log("AJAX call failed: " + errorText);
+            alert(errorText);
         }
     });
 

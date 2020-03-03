@@ -8,4 +8,9 @@ Small http server for mock-up purposes. The service returns a custom HTTP respon
 * Only requests with a specific (configurable) route-prefix will be processed for mock-up.
 * The quadrinity of route, method, query and body is checked for a corresponding definition and will return its response if such exists.
 
+# Installation
+The installation ist just copy & pasting the application files to their destination directory.
 
+The service can be started from the command line by calling webapimock.exe or it can be installed as a service by calling webapimock.exe install from the command line. Please visit the Topshelf command line reference for further information about available command line parameters.
+
+The service will be installed using the name 'webapimock.core' and the display name '.NET Core Web API Mockup Service'.

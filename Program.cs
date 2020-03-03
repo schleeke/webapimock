@@ -22,7 +22,7 @@ namespace WebApiMock {
           MockupRelativePath = "mockup";
           var retVal = HostFactory.Run(config => {
               config.OnException((ex) => Console.WriteLine($"An unexpected error occured: {ex.Message}"));
-              config.RunAsLocalSystem();
+              config.RunAsNetworkService();
               config.UseLog4Net("logging.config", true);
               config.StartAutomaticallyDelayed();
               config.SetServiceName("webapimock.core");

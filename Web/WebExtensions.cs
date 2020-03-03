@@ -36,9 +36,11 @@ namespace WebApiMock.Web {
                 path = path.Substring($"/{Program.MockupRelativePath}".Length); }
             if (string.IsNullOrEmpty(path)) {
                 path = "/"; }
+            if(path.StartsWith("/")) { path = path.Substring(1); }
             query = context.Request.QueryString.HasValue
                 ? context.Request.QueryString.Value
                 : "";
+            if (query.StartsWith("?")) { query = query.Substring(1); }
             if (context.Request.Body != null) {
                 body = context.Request.Body.ReadToEnd(); }
             method = context.GetHttpMethod();

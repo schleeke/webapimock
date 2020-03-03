@@ -116,6 +116,7 @@ namespace WebApiMock.Data {
         /// Gets/returns a mockup response with a given record id.
         /// </summary>
         /// <param name="id">The id of the mockup response record.</param>
+        /// <param name="transactionId">An (optional) identifier for logging purpose.</param>
         /// <returns>The response record with the mockup values.</returns>
         /// <exception cref="WebApiMockException">Thrown with error code #11 if no response record with the given id was found.</exception>
         public static MockupResponse GetResponseById(int id, Guid? transactionId = null) {

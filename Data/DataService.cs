@@ -118,8 +118,13 @@ namespace WebApiMock.Data {
         /// <param name="id">The id of the mockup response record.</param>
         /// <returns>The response record with the mockup values.</returns>
         /// <exception cref="WebApiMockException">Thrown with error code #11 if no response record with the given id was found.</exception>
-        public static MockupResponse GetResponseById(int id) {
-            if(!ResponseExistsForId(id)) { throw new WebApiMockException($"Unable to find a response definition for the id #{id}.", 11); }
+        public static MockupResponse GetResponseById(int id, Guid? transactionId = null) {
+            var logId = Guid.NewGuid();
+            
+            if(transactionId.HasValue) { logId = transactionId.Value; }
+            if(!ResponseExistsForId(id)) {
+                Program.Logger.Error($"[{logId}] Unable to find a response definition for the id #{id}.");
+                throw new WebApiMockException($"Unable to find a response definition for the id #{id}.", 11); }
             using var ctx = new DataContext();
             return ctx.Responses
                 .Single(r => r.Id.Equals(id))
@@ -294,38 +299,38 @@ namespace WebApiMock.Data {
         /// <param name="transactionId">An optional id for logging purpose.</param>
         /// <returns>True if a request with the given values exists.</returns>
         public static bool RequestExists(string httpMethod, string route, string query="", string body="", Guid? transactionId = null) {
-            var logId = Guid.Empty;
+            var logId = Guid.NewGuid();
             var method = httpMethod.ToMethodEnum();
             var comp = StringComparison.InvariantCultureIgnoreCase;
             List<RequestDefinition> tmpResult;
 
+            if (route.StartsWith("/")) { route = route.Substring(1); }
             if (transactionId.HasValue) { logId = transactionId.Value; }
-            if (logId.Equals(Guid.Empty)) { logId = Guid.NewGuid(); }
+            Program.Logger.Debug($"[TRACE] {nameof(DataService)}.{nameof(RequestExists)}(httpMethod: {httpMethod}, route: {route}, query: {query}, body: {body}).");
             if(method == HttpMethodEnum.Unknown) {
                 Program.Logger.Error($"[{logId}] Unknown HTTP method '{httpMethod.ToUpper()}'.");
                 throw new WebApiMockException($"Unknown HTTP method '{httpMethod}'.", 10); }
-            if (route.StartsWith("/")) { route = route.Substring(1); }
             using var ctx = new DataContext();
             tmpResult = ctx.Requests.Where(r => r.Method == method).ToList();
             if(tmpResult.Count() < 1) {
-                Program.Logger.Info($"[{logId}] No existing request(s) found.");
+                Program.Logger.Debug($"[{logId}] No existing request(s) found (no method match).");
                 return false; }
             tmpResult = tmpResult.Where(r => r.Route.Equals(route, comp)).ToList();
             if (tmpResult.Count() < 1) {
-                Program.Logger.Info($"[{logId}] No existing request(s) found.");
+                Program.Logger.Debug($"[{logId}] No existing request(s) found (no route match).");
                 return false; }
             if(string.IsNullOrEmpty(query)) {
                 tmpResult = tmpResult.Where(r => r.Query == null || string.IsNullOrEmpty(r.Query)).ToList(); }
             else {
                 tmpResult = tmpResult.Where(r => r.Query.Equals(query, comp)).ToList(); }
             if (tmpResult.Count() < 1) {
-                Program.Logger.Info($"[{logId}] No existing request(s) found.");
+                Program.Logger.Debug($"[{logId}] No existing request(s) found (no query match).");
                 return false; }
             if(string.IsNullOrEmpty(body)) {
                 tmpResult = tmpResult.Where(r => r.Body == null || string.IsNullOrEmpty(r.Body)).ToList(); }
             else {
                 tmpResult = tmpResult.Where(r => r.Body.Equals(body, comp)).ToList(); }
-            Program.Logger.Info(tmpResult.Count > 0 ? $"[{logId}] Found existing request(s)." : $"[{logId}] No existing request(s) found.");
+            Program.Logger.Debug(tmpResult.Count > 0 ? $"[{logId}] Found existing request(s)." : $"[{logId}] No existing request(s) found (no body match).");
             return (tmpResult.Count() > 0);
         }
 
@@ -388,7 +393,6 @@ namespace WebApiMock.Data {
             if (tmpList.Count < 1) {
                 Program.Logger.Error($"[{logId}] No request found.");
                 throw new WebApiMockException("No request found.", 13); }
-            Program.Logger.Info($"[{logId}] Successfully fetched request.");
             return tmpList.Single().ToMockupRequest();
         }
 
@@ -562,12 +566,12 @@ namespace WebApiMock.Data {
         public static void SetMethodForRoute(string route, string httpMethod) {
             var method = httpMethod.ToMethodEnum();
             if (method == HttpMethodEnum.Unknown) { throw new WebApiMockException($"Invalid HTTP method '{httpMethod}'.", 97); }
-            using(var ctx = new DataContext()) {
-                foreach (var request in ctx.Requests) {
-                    if(!request.Route.Equals(route, StringComparison.InvariantCultureIgnoreCase)) { continue; }
-                    request.Method = method;
-                    ctx.Requests.Update(request); }
-                ctx.SaveChanges(); }
+            using var ctx = new DataContext();
+            foreach (var request in ctx.Requests) {
+                if (!request.Route.Equals(route, StringComparison.InvariantCultureIgnoreCase)) { continue; }
+                request.Method = method;
+                ctx.Requests.Update(request); }
+            ctx.SaveChanges();
         }
 
     }

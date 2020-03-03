@@ -12,7 +12,7 @@
     <IsPackable>true</IsPackable>
     <Description>Application/service/daemon for mocking responses for all kind HTTP requests.</Description>
     <PackageTags>webapi mockup http</PackageTags>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageProjectUrl>https://github.com/schleeke/webapimock</PackageProjectUrl>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

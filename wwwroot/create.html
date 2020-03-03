@@ -14,8 +14,11 @@
         </div>
     </div>
     <div class="container">
-        <button id="btn-home" type="button" class="btn btn-primary" data-toggle="tooltip" data-placement="top" title="HOME" onclick="gotoHome()">
+        <button id="btn-home" type="button" class="btn btn-primary" data-toggle="tooltip" data-placement="top" title="Show home screen..." onclick="gotoHome()">
             <i class="material-icons fas fa-window-maximize"></i>
+        </button>
+        <button id="btn-home" type="button" class="btn btn-primary" data-toggle="tooltip" data-placement="top" title="Show help and about page..." onclick="gotoHelp()">
+            <i class="material-icons fas fa-question-circle"></i>
         </button>
         <div class="jumbotron" style="margin-top: 4px;">
             <h2 class="display-4 text-primary" style="font-size:2em;">Create a new mock-up request</h2>
@@ -26,7 +29,7 @@
                     <div class="col-md-9 col-sm-12">
                         <div class="form-group">
                             <label for="form-route-text">Route (relative path) <span class="badge badge-danger">required</span></label>
-                            <input id="form-route-text" class="form-control" type="text" placeholder="e.g. myroute/subresource" oninput="onRouteTextChange()"/>
+                            <input id="form-route-text" class="form-control" type="text" placeholder="e.g. myroute/subresource" oninput="onRouteTextChange()" />
                             <div class="invalid-feedback">
                                 Please enter a route.
                             </div>
@@ -73,7 +76,7 @@
                             <label class="form-check-label" for="form-use-new-response">New</label>
                         </div>
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="responseType" id="form-use-existing-response" value="existing"  onchange="setResponseTypeVisibility()">
+                            <input class="form-check-input" type="radio" name="responseType" id="form-use-existing-response" value="existing" onchange="setResponseTypeVisibility()">
                             <label class="form-check-label" for="form-use-existing-response">Existing</label>
                         </div>
                     </div>

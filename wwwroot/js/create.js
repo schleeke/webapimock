@@ -14,7 +14,7 @@ $( document ).ready(function() {
     validateResponse();
     setMimeTypeSelectorVisible();
     setResponseTypeVisibility();
-    $("#btn-home").tooltip();
+    $('[data-toggle="tooltip"]').tooltip();
 });
 
 /*
@@ -113,6 +113,9 @@ function setResponseTypeVisibility() { // Sets the visibility of the different r
 function gotoHome() {
     window.document.location.href = 'default.html';
 }
+function gotoHelp() {
+    window.document.location.href = 'help.html';
+}
 function getExistingResponses() {
     var url = window.location;
     var url = url.protocol + "//" + url.host + "/response";
@@ -136,5 +139,4 @@ function getExistingResponses() {
             alert(errorText);
         }
     });
-
 }

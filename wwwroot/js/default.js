@@ -4,6 +4,7 @@
 */
 $( document ).ready(function() {
     hideAlert();
+    $('[data-toggle="tooltip"]').tooltip();
     hideViewRequestsButton();
     hideCreateRequestButton();
     getAmountOfMockupRequests();
@@ -57,4 +58,7 @@ function showAlertToast(header, message) {
 }
 function hideAlert() {
     $('#webapi-alert').hide();
+}
+function gotoHelp() {
+    window.document.location.href = 'help.html';
 }

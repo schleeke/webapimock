@@ -10,8 +10,8 @@
     <br />
     <div class="container-fluid">
         <div class="container">
-            <h1 class="display-3 text-center text-primary">Web API mockup service</h1>
-            <h2 class="display-5 text-center text-secondary">HOME</h2>
+            <h1 class="display-1 text-center text-primary">Web API mockup service</h1>
+            <p class="h2 text-center text-secondary">HOME</p>
         </div>
     </div>
     <div class="container">
@@ -25,7 +25,10 @@
         </div>
     </div>
     <div id="welcome-view" class="container">
-        <div class="jumbotron">
+        <button id="btn-home" type="button" class="btn btn-primary" data-toggle="tooltip" data-placement="top" title="Show help and about page..." onclick="gotoHelp()">
+            <i class="material-icons fas fa-question-circle"></i>
+        </button>
+        <div class="jumbotron" style="margin-top: 4px;">
             <h2 class="display-4 text-primary" style="font-size:2em;">Welcome</h2>
             <p id="request-count-label" class="lead text-secondary">Loading...</p>
             <hr class="my-4">

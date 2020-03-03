@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Help | Web API Mock service</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="css/bootstrap.min.css" />
+</head>
+<body>
+    <br />
+    <div class="container-fluid">
+        <div class="container">
+            <h1 class="display-1 text-center text-primary">Web API mockup service</h1>
+            <p class="h2 text-center text-secondary">HELP</p>
+        </div>
+    </div>
+    <div class="container">
+        <button id="btn-home" type="button" class="btn btn-primary" data-toggle="tooltip" data-placement="top" title="Show home screen..." onclick="gotoHome()">
+            <i class="material-icons fas fa-window-maximize"></i>
+        </button>
+        <div class="jumbotron" style="margin-top: 4px;">
+            <h2 class="text-primary">About the Web API mockup service...</h2>
+            <p class="lead text-secondary">The service returns a custom HTTP response to any request that is configured. Therefore it holds a database with data for requests and responses to look up which can be altered by using several web API methods the service offers. Every request is analyzed by it's route (relative path/url), its query parameters, HTTP method and request body content.</p>
+            <hr class="my-4">
+            <p class="lead text-secondary"><span class="material-icons far fa-square text-secondary"></span> Only requests with a specific (configurable) route-prefix will be processed for mock-up.</p>
+            <p class="lead text-secondary"><span class="material-icons far fa-square text-secondary"></span> The quadrinity of route, method, query and body is checked for a corresponding definition and will return its response if such exists.</p>
+        </div>
+
+        <div class="jumbotron">
+          <h2 class="text-primary">Content</h2>
+          <div class="list-group">
+            <a class="list-group-item list-group-item-action text-primary" href="#install-anchor"><span class="material-icons fas fa-download text-secondary"></span> Installation</a>
+            <a class="list-group-item list-group-item-action text-primary" href="#config-anchor"><span class="material-icons fas fa-sliders-h text-secondary"></span> Configuration</a>
+            <a class="list-group-item list-group-item-action text-primary" href="#mock-anchor"><span class="material-icons fas fa-share-alt-square text-secondary"></span> Defining requests/responses</a>
+            <a class="list-group-item list-group-item-action text-primary" href="#adr-anchor"><span class="material-icons fas fa-link text-secondary"></span> Addresses</a>
+            <a class="list-group-item list-group-item-action text-primary" href="#troubleshoot-anchor"><span class="material-icons fas fa-medkit text-secondary"></span> Troubleshooting</a>
+            <a class="list-group-item list-group-item-action text-primary" href="#tech-anchor"><span class="material-icons fas fa-microchip text-secondary"></span> Technology & Licensing</a>
+          </div>  
+        </div>
+        
+        <div class="jumbotron">
+          <a id="install-anchor"></a>
+          <h2 class="text-primary"><i class="material-icons fas fa-download"></i> Installation</h2>
+          <hr class="my-4">
+          <p>The installation ist just copy & pasting the application files to their destination directory.</p>
+          <p>The service can be started from the command line by calling <kbd>webapimock.exe</kbd>
+             or it can be installed as a service by calling <kbd>webapimock.exe install</kbd> from the command line.
+             Please visit the <i class="fas fa-external-link-alt fa-xs text-secondary" style="margin-left: 4px;"></i> <a target="_blank" href="https://docs.topshelf-project.com/en/latest/overview/commandline.html">Topshelf command line reference</a> for further information about available command line parameters.</p>
+          <p>The service will be installed using the name '<code>webapimock.core</code>' and the display name '<code>.NET Core Web API Mockup Service</code>'.</p>
+        </div>
+
+        <div class="jumbotron">
+          <a id="config-anchor"></a>
+          <h2 class="text-primary"><i class="material-icons fas fa-sliders-h"></i> Configuration</h2>
+          <hr class="my-4">
+          <p>The application/service is configured by a file called <em>appsettings.json</em> which resides in the root directory.</p>
+          <p>The following configuration sections are available:</p>
+          <div class="list-group">
+
+            <div class="list-group-item">
+              <a id="https-config-anchor"></a>
+              <div class="d-flex w-100 justify-content-between">
+                <h5 class="mb-1 text-primary">HTTPS URL and Port</h5>
+                <small class="text-danger"><strong>Kestrel.Endpoints.Https.Url</strong></small>
+              </div>
+              <p class="mb-1 lead">
+                The HTTPS address (and port) the web server is listening to.
+              </p>
+              <p class="mb-1 mt-3">
+                Valid URLs are e.g.:
+              </p>
+              <div class="container">
+                <ul class="list-group list-group-flush">
+                  <li class="list-group-item">https://myhost:1234</li>
+                  <li class="list-group-item">https://myhost.domain.com:1234</li>
+                  <li class="list-group-item">https://localhost:1234</li>
+                  <li class="list-group-item">https://0.0.0.0:1234</li>
+                  <li class="list-group-item">https://192.168.0.20:1234</li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="list-group-item mt-2">
+              <a id="http-config-anchor"></a>
+              <div class="d-flex w-100 justify-content-between">
+                <h5 class="mb-1 text-primary">HTTP URL and port</h5>
+                <small class="text-danger"><strong>Kestrel.Endpoints.Http.Url</strong></small>
+              </div>
+              <p class="mb-1 lead">
+                The HTTP address (and port) the web server is listening to.
+              </p>
+              <p class="mb-1 mt-3">
+                Valid URLs are e.g.:
+              </p>
+              <div class="container">
+                <ul class="list-group list-group-flush">
+                  <li class="list-group-item">http://myhost:1234</li>
+                  <li class="list-group-item">http://myhost.domain.com:1234</li>
+                  <li class="list-group-item">http://localhost:1234</li>
+                  <li class="list-group-item">http://0.0.0.0:1234</li>
+                  <li class="list-group-item">http://192.168.0.20:1234</li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="list-group-item mt-2">
+              <a id="prefix-config-anchor"></a>
+              <div class="d-flex w-100 justify-content-between">
+                <h5 class="mb-1 text-primary">Mock-up route prefix</h5>
+                <small class="text-danger"><strong>WebApiMockSettings.MockupPrefixRoute</strong></small>
+              </div>
+              <p class="mb-1 lead">
+                The route's prefix to detect a request for mock-up.
+              </p>
+              <p class="mb-2 mt-3">
+                If the HTTP URL is set to '<em>http://localhost:8080</em>' and the route prefix ist set to '<em>my-fake-api</em>'
+                the proper beginning of a request whose response shall be mocked then has to be '<em>http://localhost:8080/my-fake-api/[...]</em>'.
+              </p>
+              <p class="mb-1">
+                The default value (if entry is absent) is 'mockup'.
+              </p>
+            </div>
+
+
+          </div>
+        </div>
+
+        <div class="jumbotron">
+          <a id="adr-anchor"></a>
+          <h2 class="text-primary"><i class="material-icons fas fa-link"></i> Addresses</h2>
+          <hr class="my-4">
+          <p>The mock-up service offers a few default address schemas for providing additional funtionality to manage and access it.</p>
+          <p>The following (relative) addresses are available:</p>
+          <div class="list-group">
+            <div class="list-group-item">
+              <div class="d-flex w-100 justify-content-between">
+                <h4 class="text-primary"><span class="badge badge-primary">http(s)://[servername]:[port]/</span></h4>
+                <small class="text-secondary">The address for the internal swashbuckle GUI</small>
+              </div>              
+            </div>
+            <div class="list-group-item">
+              <div class="d-flex w-100 justify-content-between">
+                <h4 class="text-primary"><span class="badge badge-primary">http(s)://[servername]:[port]/gui</span></h4>
+                <small class="text-secondary">The internal GUI for managing the mock-up data in a convenient way</small>
+              </div>              
+            </div>
+            <div class="list-group-item">
+              <div class="d-flex w-100 justify-content-between">
+                <h4 class="text-primary"><span class="badge badge-primary">http(s)://[servername]:[port]/[mockup prefix]</span></h4>
+                <small class="text-secondary">The URL for retrieving mock-up responses</small>
+              </div>
+              <p class="small text-secondary">The mockup prefix can be <a href="#prefix-config-anchor">configured</a> in the <em>appsettings.json</em> and defaults to 'mockup' if not configured.</p>
+            </div>
+            <div class="list-group-item">
+              <div class="d-flex w-100 justify-content-between">
+                <h4 class="text-primary"><span class="badge badge-primary">http(s)://[servername]:[port]/swagger/v1/swagger.json</span></h4>
+                <small class="text-secondary">The URL for the swagger/OpenAPI specification file.</small>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="jumbotron">
+          <a id="mock-anchor"></a>
+          <h2 class="text-primary"><i class="material-icons fas fa-share-alt-square"></i> Defining requests/responses</h2>
+          <hr class="my-4">
+          <p>
+            The request- and response-definitions are stored in an <i class="fas fa-external-link-alt fa-xs text-secondary" style="margin-left: 4px;"></i> <a target="_blank" href="https://en.wikipedia.org/wiki/SQLite">SQLite database</a> (file name: <em>mock-data.db</em>) and creating, deleting or altering data is
+            accomplished by using the service's web API methods. Each request is defined by the combination of route, (HTTP-)method, query and body
+            - where query and body are optional. Each request refers to a response which means that a response definition has to be created first before creating a request definition.
+            Each response consists of an HTTP status code and an (optional) content. If a content is specified, its MIME type has to be specified as well.
+            A response can be refered by several requests (1:n) and therefore can be 'reused' in several requests.
+          </p>
+          <p>
+            The service hosts two controllers - request and response - which both support several HTTP methods for this purpose.
+          </p>
+          <p>
+            The API is documented using <i class="fas fa-external-link-alt fa-xs text-secondary" style="margin-left: 4px;"></i> <a target="_blank" href="https://swagger.io/specification/">swagger/OpenAPI</a>
+            and its specification is accessible via the relative URL <kbd>/swagger/v1/swagger.json</kbd>.
+            A small (and very technical) GUI is available via the relative URL <kbd>/</kbd> (the '<em>root</em>', see <a href="#adr-anchor">addresses</a>) which allows viewing the data/entity specifications as well as executing the provided web API methods.
+          </p>
+          <p>
+            There is a lightweight yet more swift GUI available via the relative URL <kbd>/gui</kbd> (see <a href="#adr-anchor">addresses</a>).
+          </p>
+        </div>
+
+        <div class="jumbotron">
+          <a id="troubleshoot-anchor"></a>
+          <h2 class="text-primary"><i class="material-icons fas fa-medkit"></i> Troubleshooting</h2>
+          <hr class="my-4">
+          <p>
+            By default, the application's logging-output only goes to STDOUT but as the application uses <i class="fas fa-external-link-alt fa-xs text-secondary" style="margin-left: 4px;"></i> <a target="_blank" href="https://logging.apache.org/log4net/release/features.html">log4net</a>, it is possible to
+            enable file logging by simply editing the XML-file <em>logging.config</em> and commenting out the reference to the <em>fileAppender</em> in the <kbd>root</kbd>-section.<br/>
+            Also consider lowering the severity filter to <kbd>DEBUG</kbd> or <kbd>ALL</kbd> instead of its default <kbd>INFO</kbd>
+          </p>
+          <p>
+            The output-information and -targets are highly customizable and can be filtered/routed by severity/log level. Please refer to the <i class="fas fa-external-link-alt fa-xs text-secondary" style="margin-left: 4px;"></i> <a target="_blank" href="https://logging.apache.org/log4net/release/config-examples.html">log4net documentation</a> for further details.
+          </p>
+        </div>
+
+        <div class="jumbotron">
+          <a id="tech-anchor"></a>
+          <h2 class="text-primary"><i class="material-icons fas fa-microchip"></i> Technology & Licensing</h2>
+          <hr class="my-4">
+          <p><span class="material-icons far fa-square text-secondary"></span> The source code can be found on <i class="fas fa-external-link-alt fa-xs text-secondary" style="margin-left: 4px;"></i> <a target="_blank" href="https://github.com/schleeke/webapimock">github</a> and is licensed under the <i class="fas fa-external-link-alt fa-xs text-secondary" style="margin-left: 4px;"></i> <a target="_blank" href="https://github.com/schleeke/webapimock/blob/master/LICENSE">GNU General Public License v3.0</a>.</p>
+          <p><span class="material-icons far fa-square text-secondary"></span> The project is a <i class="fas fa-external-link-alt fa-xs text-secondary" style="margin-left: 4px;"></i> <a target="_blank" href="https://en.wikipedia.org/wiki/.NET_Core">.NET Core</a> console application which is self hosting a <i class="fas fa-external-link-alt fa-xs text-secondary" style="margin-left: 4px;"></i> <a href="https://docs.microsoft.com/en-us/aspnet/core/fundamentals/servers/kestrel?view=aspnetcore-3.1" target="_blank">Kestrel web server</a> for providing the HTTP capabilities.</p>
+          <p><span class="material-icons far fa-square text-secondary"></span> The application uses the <i class="fas fa-external-link-alt fa-xs text-secondary" style="margin-left: 4px;"></i> <a target="_blank" href="http://topshelf-project.com/">Topshelf</a> wrapper to be able to be installed and run as a service.</p>
+          <p><span class="material-icons far fa-square text-secondary"></span> The web server provides a set of web api methods for manipulating the underlying data.</p>
+          <p><span class="material-icons far fa-square text-secondary"></span> These methods are used by the web GUI which allows an easy way of managing the database's request/response data. It consists of static HTML-, CSS- and JS-files and uses <i class="fas fa-external-link-alt fa-xs text-secondary" style="margin-left: 4px;"></i> <a target="_blank" href="https://getbootstrap.com/">bootstrap</a>.</p>
+          <p><span class="material-icons far fa-square text-secondary"></span> The web server also offers a <i class="fas fa-external-link-alt fa-xs text-secondary" style="margin-left: 4px;"></i> <a target="_blank" href="https://github.com/domaindrivendev/Swashbuckle">swashbuckle GUI</a> for performing the web api method calls via GUI.</p>
+          <p><span class="material-icons far fa-square text-secondary"></span> The data for the request- and reply-definitions are stored in an <i class="fas fa-external-link-alt fa-xs text-secondary" style="margin-left: 4px;"></i> <a target="_blank" href="https://en.wikipedia.org/wiki/SQLite">SQLite database</a>.</p>
+          <p><span class="material-icons far fa-square text-secondary"></span> Logging is provided by using <i class="fas fa-external-link-alt fa-xs text-secondary" style="margin-left: 4px;"></i> <a target="_blank" href="https://logging.apache.org/log4net/release/features.html">log4net</a>.</p>
+        </div>
+
+    </div>
+
+    <script src="js/jquery-3.4.1.min.js"></script>
+    <script src="js/bootstrap.bundle.min.js"></script>
+    <script src="js/all.min.js"></script>
+    <script src="js/view.js"></script>
+</body>
+</html>

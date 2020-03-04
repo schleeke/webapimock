@@ -172,13 +172,15 @@ namespace WebApiMock.Data {
             List<ResponseDefinition> tmpList;
             using var ctx = new DataContext();
             tmpList = ctx.Responses.Where(r => r.StatusCode == statusCode).ToList();
-            if (string.IsNullOrEmpty(response)) {
-                tmpList = tmpList.Where(r => r.Response == null || string.IsNullOrEmpty(r.Response)).ToList();
-                Program.Logger.Debug($"[{logId}] Returning response with no response and HTTP {statusCode} only.");
-                return tmpList.Single().ToMockupResponse(); }
-            tmpList = tmpList.Where(r => r.Response.Equals(response, comp)).ToList();
-            tmpList = tmpList.Where(r => r.MimeType.Equals(mimeType, comp)).ToList();
-            Program.Logger.Debug($"[{logId}] Returning response for HTTP status {statusCode} and response with MIME type '{mimeType}'.");
+
+            if(string.IsNullOrEmpty(mimeType)) {
+                tmpList = tmpList.Where(r => r.MimeType == null || string.IsNullOrEmpty(r.MimeType)).ToList(); }
+            else {
+                tmpList = tmpList.Where(r => r.MimeType.Equals(mimeType, StringComparison.InvariantCultureIgnoreCase)).ToList(); }
+            if(string.IsNullOrEmpty(response)) {
+                tmpList = tmpList.Where(r => r.Response == null || string.IsNullOrEmpty(response)).ToList(); }
+            else {
+                tmpList = tmpList.Where(r => r.Response.Equals(response, StringComparison.InvariantCultureIgnoreCase)).ToList(); }
             return tmpList.Single().ToMockupResponse();
         }
 

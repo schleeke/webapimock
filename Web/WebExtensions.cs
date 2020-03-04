@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using System;
 using WebApiMock.Data;
 
 namespace WebApiMock.Web {
@@ -46,6 +47,9 @@ namespace WebApiMock.Web {
             method = context.GetHttpMethod();
             return (Path: path, Query: query, Body: body, Method: method);
         }
+
+        public static bool IsMockupRequest(this HttpRequest request)
+            => request.Path.HasValue && request.Path.Value.IndexOf($"/{Program.MockupRelativePath}", StringComparison.InvariantCultureIgnoreCase) == 0;
 
     }
 }

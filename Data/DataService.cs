@@ -176,11 +176,11 @@ namespace WebApiMock.Data {
             if(string.IsNullOrEmpty(mimeType)) {
                 tmpList = tmpList.Where(r => r.MimeType == null || string.IsNullOrEmpty(r.MimeType)).ToList(); }
             else {
-                tmpList = tmpList.Where(r => r.MimeType.Equals(mimeType, StringComparison.InvariantCultureIgnoreCase)).ToList(); }
+                tmpList = tmpList.Where(r => r.MimeType.Equals(mimeType, comp)).ToList(); }
             if(string.IsNullOrEmpty(response)) {
                 tmpList = tmpList.Where(r => r.Response == null || string.IsNullOrEmpty(response)).ToList(); }
             else {
-                tmpList = tmpList.Where(r => r.Response.Equals(response, StringComparison.InvariantCultureIgnoreCase)).ToList(); }
+                tmpList = tmpList.Where(r => r.Response.Equals(response, comp)).ToList(); }
             return tmpList.Single().ToMockupResponse();
         }
 

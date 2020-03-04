@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -134,26 +134,26 @@
           <div class="list-group">
             <div class="list-group-item">
               <div class="d-flex w-100 justify-content-between">
-                <h4 class="text-primary"><span class="badge badge-primary">http(s)://[servername]:[port]/</span></h4>
+                <h4 class="text-primary"><span id="server-root-url" class="badge badge-primary">http(s)://[servername]:[port]/</span></h4>
                 <small class="text-secondary">The address for the internal swashbuckle GUI</small>
               </div>              
             </div>
             <div class="list-group-item">
               <div class="d-flex w-100 justify-content-between">
-                <h4 class="text-primary"><span class="badge badge-primary">http(s)://[servername]:[port]/gui</span></h4>
+                <h4 class="text-primary"><span id="server-gui-url" class="badge badge-primary">http(s)://[servername]:[port]/gui</span></h4>
                 <small class="text-secondary">The internal GUI for managing the mock-up data in a convenient way</small>
               </div>              
             </div>
             <div class="list-group-item">
               <div class="d-flex w-100 justify-content-between">
-                <h4 class="text-primary"><span class="badge badge-primary">http(s)://[servername]:[port]/[mockup prefix]</span></h4>
+                <h4 class="text-primary"><span id="server-mock-url" class="badge badge-primary">http(s)://[servername]:[port]/[mockup prefix]</span></h4>
                 <small class="text-secondary">The URL for retrieving mock-up responses</small>
               </div>
               <p class="small text-secondary">The mockup prefix can be <a href="#prefix-config-anchor">configured</a> in the <em>appsettings.json</em> and defaults to 'mockup' if not configured.</p>
             </div>
             <div class="list-group-item">
               <div class="d-flex w-100 justify-content-between">
-                <h4 class="text-primary"><span class="badge badge-primary">http(s)://[servername]:[port]/swagger/v1/swagger.json</span></h4>
+                <h4 class="text-primary"><span id="server-def-url" class="badge badge-primary">http(s)://[servername]:[port]/swagger/v1/swagger.json</span></h4>
                 <small class="text-secondary">The URL for the swagger/OpenAPI specification file.</small>
               </div>
             </div>
@@ -217,6 +217,6 @@
     <script src="js/jquery-3.4.1.min.js"></script>
     <script src="js/bootstrap.bundle.min.js"></script>
     <script src="js/all.min.js"></script>
-    <script src="js/view.js"></script>
+    <script src="js/help.js"></script>
 </body>
 </html>

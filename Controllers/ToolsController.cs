@@ -96,6 +96,26 @@ namespace WebApiMock.Controllers {
             return Ok();
         }
 
+        /// <summary>
+        /// Gets the prefix (relative URL) for the mock-up responses.
+        /// </summary>
+        /// <remarks>
+        /// Sample request:
+        /// 
+        /// GET /tools/mockupprefix
+        /// </remarks>
+        /// <returns>The prefix for the mock-up requests.</returns>
+        /// <response code="200">OK</response>
+        [HttpGet]
+        [Route("mockupprefix")]
+        [Produces("text/plain")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(string), StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<string>> GetMockupPrefix() {
+            var prefix = Program.MockupRelativePath;
+            return Ok(prefix);
+        }
+
     
         private void ImportDirectory(System.IO.DirectoryInfo dir, bool isQueryDirectory, Guid transactionId) {
             var comp = StringComparison.InvariantCultureIgnoreCase;

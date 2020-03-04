@@ -119,7 +119,6 @@ function gotoHelp() {
 function getExistingResponses() {
     var url = window.location;
     var url = url.protocol + "//" + url.host + "/response";
-    console.log("Calling " + url);
     $.ajax({
         url: url,
         type: 'GET',

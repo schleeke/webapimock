@@ -7,7 +7,9 @@ $( document ).ready(function() {
     getAllUrls();
 });
 
-
+function gotoHome() {
+    window.document.location.href = 'default.html';
+}
 function getRootUrl() {
   var location = window.location.origin 
                   ? window.location.origin + '/'

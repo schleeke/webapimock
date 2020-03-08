@@ -5,6 +5,7 @@
     <title>View | Web API Mock service</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="stylesheet" href="css/bootstrap.min.css" />
+    <link rel="stylesheet" href="css/dataTables.bootstrap4.min.css"/>
 </head>
 <body>
     <br />
@@ -23,15 +24,57 @@
         </button>
 
         <div class="jumbotron" style="margin-top: 4px;">
-            <h2 class="text-primary">View existing mock-up requests</h2>
-            <p id="request-count-label" class="lead text-secondary">Reading data...</p>
+            <h2 class="text-primary">Mock-Up requests and responses</h2>
+            <p id="request-count-label" class="lead text-secondary">View, edit, create or delete requests and responses for mock-up purpose.</p>
             <hr class="my-4">
+
+
+            <div class="row">
+                <div class="col col-xs-12">
+                    <nav>
+                        <div class="nav nav-tabs nav-fill" id="nav-tab" role="tablist">
+                            <a class="nav-item nav-link active" id="nav-home-tab" data-toggle="tab" href="#nav-home" role="tab" aria-controls="nav-home" aria-selected="true">Requests</a>
+                            <a class="nav-item nav-link" id="nav-profile-tab" data-toggle="tab" href="#nav-profile" role="tab" aria-controls="nav-profile" aria-selected="false">Responses</a>
+                        </div>
+                    </nav>
+                    <div class="tab-content py-3 px-3 px-sm-0 mt-5" id="nav-tabContent">
+                        <div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab">
+                            <div class="jumotron p-4 rounded" style="background-color: white;">
+                                <div class="btn-group btn-group-sm mb-4">
+                                    <button id="btn-request-new" type="button" class="btn btn-success">New request</button>
+                                    <button id="btn-request-delete" type="button" class="btn btn-danger" disabled onclick="deleteRequest()">Delete request</button>
+                                </div>
+                                <table id="request-table" class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">Id</th>
+                                            <th scope="col">Route</th>
+                                            <th scope="col">Method</th>
+                                            <th scope="col">Query</th>
+                                            <th scope="col">Body</th>
+                                            <th scope="col">Response Id</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="request-table-body" />
+                                </table>
+                            </div>
+                          </div>
+                          <div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">
+                            Responses
+                          </div>            
+                    </div>
+                </div>
+            </div>
+
+
         </div>
     </div>
 
     <script src="js/jquery-3.4.1.min.js"></script>
     <script src="js/bootstrap.bundle.min.js"></script>
     <script src="js/all.min.js"></script>
+    <script src="js/jquery.dataTables.min.js"></script>
+    <script src="js/dataTables.bootstrap4.min.js"></script>
     <script src="js/view.js"></script>
 </body>
 </html>

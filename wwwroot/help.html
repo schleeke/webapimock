@@ -53,73 +53,119 @@
           <a id="config-anchor"></a>
           <h2 class="text-primary"><i class="material-icons fas fa-sliders-h"></i> Configuration</h2>
           <hr class="my-4">
-          <p>The application/service is configured by a file called <em>appsettings.json</em> which resides in the root directory.</p>
+          <p>The application/service is configured by a file called <em>appsettings.json</em> which resides in the application's root directory.</p>
           <p>The following configuration sections are available:</p>
           <div class="list-group">
 
-            <div class="list-group-item">
-              <a id="https-config-anchor"></a>
-              <div class="d-flex w-100 justify-content-between">
-                <h5 class="mb-1 text-primary">HTTPS URL and Port</h5>
-                <small class="text-danger"><strong>Kestrel.Endpoints.Https.Url</strong></small>
+              <div class="list-group-item">
+                  <div class="d-flex w-100 justify-content-between">
+                      <h5 class="mb-1 text-secondary">Description</h5>
+                      <h5 class="text-secondary">Config-Section</h5>
+                  </div>
               </div>
-              <p class="mb-1 lead">
-                The HTTPS address (and port) the web server is listening to.
-              </p>
-              <p class="mb-1 mt-3">
-                Valid URLs are e.g.:
-              </p>
-              <div class="container">
-                <ul class="list-group list-group-flush">
-                  <li class="list-group-item">https://myhost:1234</li>
-                  <li class="list-group-item">https://myhost.domain.com:1234</li>
-                  <li class="list-group-item">https://localhost:1234</li>
-                  <li class="list-group-item">https://0.0.0.0:1234</li>
-                  <li class="list-group-item">https://192.168.0.20:1234</li>
-                </ul>
-              </div>
-            </div>
 
-            <div class="list-group-item mt-2">
-              <a id="http-config-anchor"></a>
-              <div class="d-flex w-100 justify-content-between">
-                <h5 class="mb-1 text-primary">HTTP URL and port</h5>
-                <small class="text-danger"><strong>Kestrel.Endpoints.Http.Url</strong></small>
+              <div class="list-group-item">
+                  <a id="https-config-anchor"></a>
+                  <div class="d-flex w-100 justify-content-between">
+                      <h5 class="mb-1 text-primary">HTTPS URL and Port</h5>
+                      <small class="text-danger"><strong>Kestrel.Endpoints.Https.Url</strong></small>
+                  </div>
+                  <p class="mb-1 lead">
+                      The HTTPS address (and port) the web server is listening to.
+                  </p>
+                  <p class="mb-1 mt-3">
+                      Valid URLs are e.g.:
+                  </p>
+                  <div class="container">
+                      <ul class="list-group list-group-flush">
+                          <li class="list-group-item">https://myhost:1234</li>
+                          <li class="list-group-item">https://myhost.domain.com:1234</li>
+                          <li class="list-group-item">https://localhost:1234</li>
+                          <li class="list-group-item">https://0.0.0.0:1234</li>
+                          <li class="list-group-item">https://192.168.0.20:1234</li>
+                      </ul>
+                  </div>
+                  <div class="card mt-4">
+                      <div class="card-body">
+                          <h5 class="card-title">Default value</h5>
+                          <p class="card-text text-secondary">The default value (if entry is absent) is <span class="badge badge-warning">https://localhost:5001</span>.</p>
+                      </div>
+                  </div>
               </div>
-              <p class="mb-1 lead">
-                The HTTP address (and port) the web server is listening to.
-              </p>
-              <p class="mb-1 mt-3">
-                Valid URLs are e.g.:
-              </p>
-              <div class="container">
-                <ul class="list-group list-group-flush">
-                  <li class="list-group-item">http://myhost:1234</li>
-                  <li class="list-group-item">http://myhost.domain.com:1234</li>
-                  <li class="list-group-item">http://localhost:1234</li>
-                  <li class="list-group-item">http://0.0.0.0:1234</li>
-                  <li class="list-group-item">http://192.168.0.20:1234</li>
-                </ul>
-              </div>
-            </div>
 
-            <div class="list-group-item mt-2">
-              <a id="prefix-config-anchor"></a>
-              <div class="d-flex w-100 justify-content-between">
-                <h5 class="mb-1 text-primary">Mock-up route prefix</h5>
-                <small class="text-danger"><strong>WebApiMockSettings.MockupPrefixRoute</strong></small>
+              <div class="list-group-item mt-2">
+                  <a id="http-config-anchor"></a>
+                  <div class="d-flex w-100 justify-content-between">
+                      <h5 class="mb-1 text-primary">HTTP URL and port</h5>
+                      <small class="text-danger"><strong>Kestrel.Endpoints.Http.Url</strong></small>
+                  </div>
+                  <p class="mb-1 lead">
+                      The HTTP address (and port) the web server is listening to.
+                  </p>
+                  <p class="mb-1 mt-3">
+                      Valid URLs are e.g.:
+                  </p>
+                  <div class="container">
+                      <ul class="list-group list-group-flush">
+                          <li class="list-group-item">http://myhost:1234</li>
+                          <li class="list-group-item">http://myhost.domain.com:1234</li>
+                          <li class="list-group-item">http://localhost:1234</li>
+                          <li class="list-group-item">http://0.0.0.0:1234</li>
+                          <li class="list-group-item">http://192.168.0.20:1234</li>
+                      </ul>
+                  </div>
+                  <div class="card mt-4">
+                      <div class="card-body">
+                          <h5 class="card-title">Default value</h5>
+                          <p class="card-text text-secondary">The default value (if entry is absent) is <span class="badge badge-warning">http://localhost:5000</span>.</p>
+                      </div>
+                  </div>
               </div>
-              <p class="mb-1 lead">
-                The route's prefix to detect a request for mock-up.
-              </p>
-              <p class="mb-2 mt-3">
-                If the HTTP URL is set to '<em>http://localhost:8080</em>' and the route prefix ist set to '<em>my-fake-api</em>'
-                the proper beginning of a request whose response shall be mocked then has to be '<em>http://localhost:8080/my-fake-api/[...]</em>'.
-              </p>
-              <p class="mb-1">
-                The default value (if entry is absent) is 'mockup'.
-              </p>
-            </div>
+
+              <div class="list-group-item mt-2">
+                  <a id="prefix-config-anchor"></a>
+                  <div class="d-flex w-100 justify-content-between">
+                      <h5 class="mb-1 text-primary">Mock-up route prefix</h5>
+                      <small class="text-danger"><strong>WebApiMockSettings.MockupPrefixRoute</strong></small>
+                  </div>
+                  <p class="mb-1 lead">
+                      The route's prefix to detect a request for mock-up.
+                  </p>
+                  <p class="mb-2 mt-3">
+                      If the HTTP URL is set to '<em>http://localhost:8080</em>' and the route prefix ist set to '<em>my-fake-api</em>'
+                      the proper beginning of a request whose response shall be mocked then has to be '<em>http://localhost:8080/my-fake-api/[...]</em>'.
+                  </p>
+                  <div class="card mt-4">
+                      <div class="card-body">
+                          <h5 class="card-title">Default value</h5>
+                          <p class="card-text text-secondary">The default value (if entry is absent) is <span class="badge badge-warning">mockup</span>.</p>
+                      </div>
+                  </div>
+              </div>
+
+              <div class="list-group-item mt-2">
+                  <a id="prefix-config-anchor"></a>
+                  <div class="d-flex w-100 justify-content-between">
+                      <h5 class="mb-1 text-primary">Auto generate responses for unknown requests</h5>
+                      <small class="text-danger"><strong>WebApiMockSettings.AutoGenerateAnswer</strong></small>
+                  </div>
+                  <p class="mb-1 lead">
+                      Toggles the automatic generation of responses for unknown requests.
+                  </p>
+                  <p class="mb-2 mt-3">
+                      If a mock-up request is unknown, the service will automatically generate a response- and request-definition in the database for later editing.<br/>
+                      The default status code for that response will be 200 and it will return an "application/json" response.
+                  </p>
+                  <div class="card mt-4">
+                      <div class="card-body">
+                          <h5 class="card-title">Default value</h5>
+                          <p class="card-text text-secondary">The default value (if entry is absent) is <span class="badge badge-warning">false</span>.</p>
+                      </div>
+                  </div>
+              </div>
+
+
+
 
 
           </div>
@@ -134,26 +180,26 @@
           <div class="list-group">
             <div class="list-group-item">
               <div class="d-flex w-100 justify-content-between">
-                <h4 class="text-primary"><span id="server-root-url" class="badge badge-primary">http(s)://[servername]:[port]/</span></h4>
-                <small class="text-secondary">The address for the internal swashbuckle GUI</small>
+                <h4 class="text-primary"><a id="server-root-link" target="_blank" href="#"><span id="server-root-url" class="badge badge-primary">http(s)://[servername]:[port]/</span></a></h4>
+                <small class="text-secondary">The address for the internal swashbuckle/swagger UI</small>
               </div>              
             </div>
             <div class="list-group-item">
               <div class="d-flex w-100 justify-content-between">
-                <h4 class="text-primary"><span id="server-gui-url" class="badge badge-primary">http(s)://[servername]:[port]/gui</span></h4>
+                <h4 class="text-primary"><a id="server-gui-link" target="_blank" href="#"><span id="server-gui-url" class="badge badge-primary">http(s)://[servername]:[port]/gui</span></a></h4>
                 <small class="text-secondary">The internal GUI for managing the mock-up data in a convenient way</small>
               </div>              
             </div>
             <div class="list-group-item">
               <div class="d-flex w-100 justify-content-between">
-                <h4 class="text-primary"><span id="server-mock-url" class="badge badge-primary">http(s)://[servername]:[port]/[mockup prefix]</span></h4>
+                <h4 class="text-primary"><a id="server-mock-link" target="_blank" href="#"><span id="server-mock-url" class="badge badge-primary">http(s)://[servername]:[port]/[mockup prefix]</span></a></h4>
                 <small class="text-secondary">The URL for retrieving mock-up responses</small>
               </div>
               <p class="small text-secondary">The mockup prefix can be <a href="#prefix-config-anchor">configured</a> in the <em>appsettings.json</em> and defaults to 'mockup' if not configured.</p>
             </div>
             <div class="list-group-item">
               <div class="d-flex w-100 justify-content-between">
-                <h4 class="text-primary"><span id="server-def-url" class="badge badge-primary">http(s)://[servername]:[port]/swagger/v1/swagger.json</span></h4>
+                <h4 class="text-primary"><a id="server-def-link" target="_blank" href="#"><span id="server-def-url" class="badge badge-primary">http(s)://[servername]:[port]/swagger/v1/swagger.json</span></a></h4>
                 <small class="text-secondary">The URL for the swagger/OpenAPI specification file.</small>
               </div>
             </div>
@@ -175,9 +221,9 @@
             The service hosts two controllers - request and response - which both support several HTTP methods for this purpose.
           </p>
           <p>
-            The API is documented using <i class="fas fa-external-link-alt fa-xs text-secondary" style="margin-left: 4px;"></i> <a target="_blank" href="https://swagger.io/specification/">swagger/OpenAPI</a>
-            and its specification is accessible via the relative URL <kbd>/swagger/v1/swagger.json</kbd>.
-            A small (and very technical) GUI is available via the relative URL <kbd>/</kbd> (the '<em>root</em>', see <a href="#adr-anchor">addresses</a>) which allows viewing the data/entity specifications as well as executing the provided web API methods.
+              The API is documented using <i class="fas fa-external-link-alt fa-xs text-secondary" style="margin-left: 4px;"></i> <a target="_blank" href="https://swagger.io/specification/">swagger/OpenAPI</a>
+              and its specification is accessible via the relative URL <kbd>/swagger/v1/swagger.json</kbd> (see <a href="#adr-anchor">addresses</a>).<br/>
+              A small (and very technical) GUI is available via the relative URL <kbd>/</kbd> (the '<em>root</em>', see <a href="#adr-anchor">addresses</a>) which allows viewing the data/entity specifications as well as executing the provided web API methods.
           </p>
           <p>
             There is a lightweight yet more swift GUI available via the relative URL <kbd>/gui</kbd> (see <a href="#adr-anchor">addresses</a>).

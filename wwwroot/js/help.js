@@ -32,9 +32,13 @@ function getAllUrls() {
             if (data === null) { return; }
             if (rootUrl.startsWith('http') == false) { return; }
             $('#server-root-url').text(rootUrl);
+            $('#server-root-link').attr("href", rootUrl);
             $('#server-gui-url').text(rootUrl + 'gui');
+            $('#server-gui-link').attr("href", rootUrl + 'gui');
             $('#server-mock-url').text(rootUrl + data);
+            $('#server-mock-link').attr("href", rootUrl + data);
             $('#server-def-url').text(rootUrl + 'swagger/v1/swagger.json');
+            $('#server-def-link').attr("href", rootUrl + 'swagger/v1/swagger.json');
         }
     });
 }

@@ -48,6 +48,11 @@ namespace WebApiMock.Web {
             return (Path: path, Query: query, Body: body, Method: method);
         }
 
+        /// <summary>
+        /// Checks if the incoming request is a mock-up one.
+        /// </summary>
+        /// <param name="request">The HTTP request.</param>
+        /// <returns>True if this is a request for the mock-up route.</returns>
         public static bool IsMockupRequest(this HttpRequest request)
             => request.Path.HasValue && request.Path.Value.IndexOf($"/{Program.MockupRelativePath}", StringComparison.InvariantCultureIgnoreCase) == 0;
 

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 using Topshelf;
 using Topshelf.Logging;
+using Topshelf.Runtime.DotNetCore;
 
 namespace WebApiMock {
     /// <inheritdoc/>
@@ -24,6 +25,9 @@ namespace WebApiMock {
               config.OnException((ex) => Console.WriteLine($"An unexpected error occured: {ex.Message}"));
               config.RunAsNetworkService();
               config.UseLog4Net("logging.config", true);
+              config.UseEnvironmentBuilder(new Topshelf.HostConfigurators.EnvironmentBuilderFactory(c => {
+                  return new DotNetCoreEnvironmentBuilder(c);
+              }));
               config.StartAutomaticallyDelayed();
               config.SetServiceName("webapimock.core");
               config.SetDescription(".NET Core mock-up service/tool for web APIs.");

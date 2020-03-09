@@ -182,7 +182,8 @@ namespace WebApiMock.Controllers {
             if(id == 0) {
                 return BadRequest("The id is 0."); }
             if(!DataService.RequestExistsForId(id)) {
-                return NotFound($"No request with id #{id} found."); }
+                Program.Logger.Warn($"No request with id #{id} found.");
+                return Ok(); }
             DataService.RemoveRequest(id);
             return Ok();
         }

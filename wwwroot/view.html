@@ -40,28 +40,36 @@
                     <div class="tab-content py-3 px-3 px-sm-0 mt-5" id="nav-tabContent">
                         <div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab">
                             <div class="jumotron p-4 rounded" style="background-color: white;">
-                                <div class="btn-group btn-group-sm mb-4">
-                                    <button id="btn-request-new" type="button" class="btn btn-success">New request</button>
-                                    <button id="btn-request-delete" type="button" class="btn btn-danger" disabled onclick="deleteRequest()">Delete request</button>
-                                </div>
                                 <table id="request-table" class="table table-hover">
                                     <thead>
                                         <tr>
-                                            <th scope="col">Id</th>
                                             <th scope="col">Route</th>
                                             <th scope="col">Method</th>
                                             <th scope="col">Query</th>
                                             <th scope="col">Body</th>
-                                            <th scope="col">Response Id</th>
+                                            <th scope="col">Remove</th>
                                         </tr>
                                     </thead>
                                     <tbody id="request-table-body" />
                                 </table>
                             </div>
-                          </div>
-                          <div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">
-                            Responses
-                          </div>            
+                        </div>
+                        <div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">
+                            <div class="jumotron p-4 rounded" style="background-color: white;">
+                                <table id="response-table" class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">Id</th>
+                                            <th scope="col">Status Code</th>
+                                            <th scope="col">MIME type</th>
+                                            <th scope="col">Response</th>
+                                            <th scope="col">Remove</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="response-table-body" />
+                                </table>
+                            </div>
+                        </div>            
                     </div>
                 </div>
             </div>

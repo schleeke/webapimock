@@ -26,7 +26,7 @@ namespace WebApiMock.Controllers {
         [Produces("application/json")]
         [ProducesResponseType(typeof(IEnumerable<MockupResponse>), StatusCodes.Status200OK)]
         public async Task<ActionResult<IEnumerable<MockupResponse>>> Get() {
-            Program.Logger.Info("Executing ToolsController.Get()");
+            Program.Logger.Info("Executing ResponseController.Get()");
             MockupResponse[] result = DataService.GetResponses();
             Program.Logger.Info($"Returning {result.Length} responses.");
             return Ok(result);
@@ -51,7 +51,7 @@ namespace WebApiMock.Controllers {
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<MockupResponse>> Get(int id) {
             MockupResponse result;
-            Program.Logger.Info($"Executing ToolsController.Get({id})");
+            Program.Logger.Info($"Executing ResponseController.Get({id})");
             try {
                 result = DataService.GetResponseById(id); }
             catch (WebApiMockException ex) {
@@ -93,7 +93,7 @@ namespace WebApiMock.Controllers {
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(MockupResponse), StatusCodes.Status200OK)]
         public async Task<ActionResult<MockupResponse>> Put([FromBody]MockupResponse response) {
-            Program.Logger.Info($"Executing ToolsController.Put({response})");
+            Program.Logger.Info($"Executing ResponseController.Put({response})");
             if(response.Response == null) { response.Response = ""; }
             if(response.MimeType == null) { response.MimeType = ""; }
             if (response.Id > 0) {
@@ -127,14 +127,14 @@ namespace WebApiMock.Controllers {
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult> Delete(int id) {
-            Program.Logger.Info($"Executing ToolsController.Delete({id})");
+            Program.Logger.Info($"Executing ResponseController.Delete({id})");
             if (id == 0) {
                 Program.Logger.Error("The id is 0.");
                 return BadRequest("The id is 0.");
             }
             if (!DataService.ResponseExistsForId(id)) {
-                Program.Logger.Error($"No request with id #{id} found.");
-                return NotFound($"No request with id #{id} found.");
+                Program.Logger.Warn($"No request with id #{id} found.");
+                return Ok();
             }
             DataService.RemoveResponse(id);
             Program.Logger.Info($"Successfully removed response with id #{id}.");
@@ -167,7 +167,7 @@ namespace WebApiMock.Controllers {
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<MockupResponse>> Patch(int id, [FromBody] MockupResponse response) {
             MockupResponse existingResponse;
-            Program.Logger.Info($"Executing ToolsController.Patch({id}, {response})");
+            Program.Logger.Info($"Executing ResponseController.Patch({id}, {response})");
             if (response.Id < 1) {
                 Program.Logger.Error("The response definition has an empty id.");
                 return StatusCode(409, "The response definition has an empty id."); }
@@ -189,6 +189,37 @@ namespace WebApiMock.Controllers {
                 DataService.SetResponseMimeType(id, response.MimeType); }
             Program.Logger.Info($"Successfully updated response #{id}.");
             return Ok(response);
+        }
+
+        /// <summary>
+        /// Returns all requests for a given response.
+        /// </summary>
+        /// <param name="id">The id of the response.</param>
+        /// <remarks>
+        /// Sample Request:
+        /// 
+        /// GET /response/6/request
+        /// </remarks>
+        /// <response code="200">OK.</response>
+        /// <response code="404">No response found for the given id.</response>
+        /// <response code="409">The id is 0 (zero).</response>
+        /// <returns>An array of request definitions.</returns>
+        [HttpGet]
+        [Route("{id}/request")]
+        [Produces("application/json")]
+        [ProducesResponseType(typeof(MockupResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<MockupRequest[]>> GetRequests(int id) {
+            Program.Logger.Info($"Executing ResponseController.GetRequests({id})");
+            if (id < 1) {
+                Program.Logger.Error("The id is 0 (zero).");
+                return StatusCode(409, "The id is 0 (zero)."); }
+            if (!DataService.ResponseExistsForId(id)) {
+                Program.Logger.Error($"No response definition found with id #{id}.");
+                return NotFound($"No response definition found with id #{id}."); }
+            var requests = DataService.GetRequestsForResponse(id);
+            return Ok(requests);
         }
     }
 }

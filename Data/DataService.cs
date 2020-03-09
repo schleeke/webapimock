@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -139,7 +140,6 @@ namespace WebApiMock.Data {
         /// <returns>An array with all response records for the given HTTP status code.</returns>
         /// <exception cref="WebApiMockException">Thrown with error code #1 if no responsefor the given HTTP status code was found.</exception>
         public static MockupResponse[] GetAllResponsesForStatusCode(int statusCode) {
-            //if(!ResponseExists(statusCode)) { throw new WebApiMockException($"Unable to find a response for the status code #{statusCode}.", 1); }
             using var ctx = new DataContext();
             return ctx.Responses
                 .Where(r => r.StatusCode.Equals(statusCode))
@@ -209,7 +209,7 @@ namespace WebApiMock.Data {
                 MimeType = response.MimeType };
             using var ctx = new DataContext();
             ctx.Responses.Add(newData);
-            ctx.SaveChanges();
+            ctx.SaveChanges(true);
             Program.Logger.Info($"[{logId}] Successfully created response (HTTP {response.StatusCode}) with id #{newData.Id}.");
             return newData.ToMockupResponse();
         }
@@ -221,13 +221,15 @@ namespace WebApiMock.Data {
         /// <param name="statusCode">The value of the new HTTP status code.</param>
         /// <exception cref="WebApiMockException">Thrown with error code #5 if no mockup response record with the given id exists.</exception>
         public static void SetResponseStatusCode(int id, int statusCode) {
-            if (!ResponseExistsForId(id)) { throw new WebApiMockException($"No response exists with the id #{id}.", 5); }
+            if (!ResponseExistsForId(id)) {
+                Program.Logger.Error($"No response exists with the id #{id}.");
+                throw new WebApiMockException($"No response exists with the id #{id}.", 5); }
             using var ctx = new DataContext();
             var existingItem = ctx.Responses.Single(r => r.Id.Equals(id));
             if (existingItem.StatusCode == statusCode) { return; }
             existingItem.StatusCode = statusCode;
             ctx.Responses.Update(existingItem);
-            ctx.SaveChanges();
+            ctx.SaveChanges(true);
         }
 
         /// <summary>
@@ -237,7 +239,9 @@ namespace WebApiMock.Data {
         /// <param name="response">The new value for the response's return value.</param>
         /// <exception cref="WebApiMockException">Thrown with error code #5 if no mockup response record with the given id exists.</exception>
         public static void SetResponseResponse(int id, string response) {
-            if (!ResponseExistsForId(id)) { throw new WebApiMockException($"No response exists with the id #{id}.", 5); }
+            if (!ResponseExistsForId(id)) {
+                Program.Logger.Error($"No response exists with the id #{id}.");
+                throw new WebApiMockException($"No response exists with the id #{id}.", 5); }
             using var ctx = new DataContext();
             var existingItem = ctx.Responses.Single(r => r.Id.Equals(id));
             if (existingItem.Response.Equals(response, StringComparison.InvariantCultureIgnoreCase)) { return; }
@@ -246,7 +250,7 @@ namespace WebApiMock.Data {
                 existingItem.Response = null;
                 existingItem.MimeType = null; }
             ctx.Responses.Update(existingItem);
-            ctx.SaveChanges();
+            ctx.SaveChanges(true);
         }
 
         /// <summary>
@@ -256,13 +260,15 @@ namespace WebApiMock.Data {
         /// <param name="mimeType">The new MIME type value corresponding the the record's response return value.</param>
         /// <exception cref="WebApiMockException">Thrown with error code #5 if no mockup response record with the given id exists.</exception>
         public static void SetResponseMimeType(int id, string mimeType) {
-            if (!ResponseExistsForId(id)) { throw new WebApiMockException($"No response exists with the id #{id}.", 5); }
+            if (!ResponseExistsForId(id)) {
+                Program.Logger.Error($"No response exists with the id #{id}.");
+                throw new WebApiMockException($"No response exists with the id #{id}.", 5); }
             using var ctx = new DataContext();
             var existingItem = ctx.Responses.Single(r => r.Id.Equals(id));
             if (existingItem.MimeType.Equals(mimeType, StringComparison.InvariantCultureIgnoreCase)) { return; }
             existingItem.MimeType = mimeType;
             ctx.Responses.Update(existingItem);
-            ctx.SaveChanges();
+            ctx.SaveChanges(true);
         }
 
         /// <summary>
@@ -271,11 +277,13 @@ namespace WebApiMock.Data {
         /// <param name="id">The id of the existing mockup response record.</param>
         /// <exception cref="WebApiMockException">Thrown with error code #5 if no mockup response record with the given id exists.</exception>
         public static void RemoveResponse(int id) {
-            if (!ResponseExistsForId(id)) { throw new WebApiMockException($"No response exists with the id #{id}.", 5); }
+            if (!ResponseExistsForId(id)) {
+                Program.Logger.Warn($"No response exists with the id #{id}.");
+                return; }
             using var ctx = new DataContext();
             var item = ctx.Responses.Single(r => r.Id.Equals(id));
             ctx.Responses.Remove(item);
-            ctx.SaveChanges();
+            ctx.SaveChanges(true);
         }
 
         #endregion
@@ -345,7 +353,9 @@ namespace WebApiMock.Data {
         /// <exception cref="WebApiMockException">Thrown with id #11 if no request with the given id exists.</exception>
         public static MockupRequest GetRequestById(int id) {
             using var ctx = new DataContext();
-            if (!ctx.Requests.Any(req => req.Id.Equals(id))) { throw new WebApiMockException($"No request with id #{id} found.", 11); }
+            if (!ctx.Requests.Any(req => req.Id.Equals(id))) {
+                Program.Logger.Error($"No request with id #{id} found.");
+                throw new WebApiMockException($"No request with id #{id} found.", 11); }
             return ctx.Requests.Single(req => req.Id.Equals(id)).ToMockupRequest();
         }
 
@@ -414,15 +424,20 @@ namespace WebApiMock.Data {
             if (transactionId.HasValue) { logId = transactionId.Value; }
             if (logId.Equals(Guid.Empty)) { logId = Guid.NewGuid(); }
             if(method == HttpMethodEnum.Unknown) {
+                Program.Logger.Error($"Unknown HTTP method '{request.HttpMethod}'.");
                 throw new WebApiMockException($"Unknown HTTP method '{request.HttpMethod}'.", 16); }
             if(request.ResponseId == 0) {
+                Program.Logger.Error("No response set for the new request.");
                 throw new WebApiMockException("No response set for the new request.", 17); }
             exists = ResponseExistsForId(request.ResponseId);
             if(!exists) {
+                Program.Logger.Error($"No response with id #{request.ResponseId} found.");
                 throw new WebApiMockException($"No response with id #{request.ResponseId} found.", 18); }
             if (request.Id != 0) {
+                Program.Logger.Error("The id for a new request must be 0.");
                 throw new WebApiMockException("The id for a new request must be 0.", 14); }
             if (RequestExists(request.HttpMethod, request.Route, request.Query, request.Body, logId)) {
+                Program.Logger.Error("The request already exists.");
                 throw new WebApiMockException("The request already exists.", 15); }
             newData = new RequestDefinition {
                 Method = request.HttpMethod.ToMethodEnum(),
@@ -432,7 +447,7 @@ namespace WebApiMock.Data {
                 MockupResponseId = request.ResponseId };
             using var ctx = new DataContext();
             ctx.Requests.Add(newData);
-            ctx.SaveChanges();
+            ctx.SaveChanges(true);
             Program.Logger.Info($"[{logId}] Successfully created request #{newData.Id} ({request.Route}) [{request.HttpMethod}].");
             return newData.ToMockupRequest();
         }
@@ -444,7 +459,8 @@ namespace WebApiMock.Data {
         /// <exception cref="WebApiMockException">Thrown with error code #19 if no record with the given id was found.</exception>
         public static void RemoveRequest(int id) {
             if (!RequestExistsForId(id)) {
-                throw new WebApiMockException($"No request with id #{id} found.", 19); }
+                Program.Logger.Warn($"No request with id #{id} found.");
+                return; }
             using var ctx = new DataContext();
             var existingItem = ctx.Requests.Single(r => r.Id == id);
             var responseUseCount = ctx.Requests
@@ -454,7 +470,10 @@ namespace WebApiMock.Data {
                 var responseToRemove = ctx.Responses.Single(r => r.Id == existingItem.MockupResponseId);
                 ctx.Responses.Remove(responseToRemove); }
             ctx.Requests.Remove(existingItem);
-            ctx.SaveChanges();
+            try {
+                ctx.SaveChanges(true); }
+            catch (DbUpdateConcurrencyException ex) {
+                Program.Logger.Warn($"The dbContext integrity seems to be corrupted: {ex.GetFullMessage()}"); }
         }
         
         /// <summary>
@@ -463,14 +482,18 @@ namespace WebApiMock.Data {
         /// <param name="id">The id of the request.</param>
         /// <param name="responseId">The new id of the response.</param>
         public static void SetRequestResponseId(int id, int responseId) {
-            if (!RequestExistsForId(id)) { throw new WebApiMockException($"No request with id #{id} found.", 22); }
-            if (!ResponseExistsForId(responseId)) { throw new WebApiMockException($"No response with id #{id} found.", 23); }
+            if (!RequestExistsForId(id)) {
+                Program.Logger.Error($"No request with id #{id} found.");
+                throw new WebApiMockException($"No request with id #{id} found.", 22); }
+            if (!ResponseExistsForId(responseId)) {
+                Program.Logger.Error($"No response with id #{id} found.");
+                throw new WebApiMockException($"No response with id #{id} found.", 23); }
             using var ctx = new DataContext();
             var item = ctx.Requests.Single(r => r.Id == id);
             if(item.MockupResponseId == responseId) { return; }
             item.MockupResponseId = responseId;
             ctx.Requests.Update(item);
-            ctx.SaveChanges();
+            ctx.SaveChanges(true);
         }
 
         /// <summary>
@@ -490,15 +513,17 @@ namespace WebApiMock.Data {
         /// <param name="route">The new value for the route/relative URL part.</param>
         public static void SetRequestRoute(int id, string route) {
             if (!RequestExistsForId(id)) {
+                Program.Logger.Error($"No request with id #{id} found.");
                 throw new WebApiMockException($"No request with id #{id} found.", 22); }
             using var ctx = new DataContext();
             var item = ctx.Requests.Single(r => r.Id == id);
             if(item.Route.Equals(route, StringComparison.InvariantCultureIgnoreCase)) { return; }
             if(RequestExists(item.Method.ToMethodString(), route, item.Query, item.Body)) {
+                Program.Logger.Error("A request for the given parameters already exists.");
                 throw new WebApiMockException("A request for the given parameters already exists.", 24); }
             item.Route = route;
             ctx.Requests.Update(item);
-            ctx.SaveChanges();
+            ctx.SaveChanges(true);
         }
 
         /// <summary>
@@ -508,15 +533,17 @@ namespace WebApiMock.Data {
         /// <param name="query">The new query value.</param>
         public static void SetRequestQuery(int id, string query) {
             if (!RequestExistsForId(id)) {
+                Program.Logger.Error($"No request with id #{id} found.");
                 throw new WebApiMockException($"No request with id #{id} found.", 22); }
             using var ctx = new DataContext();
             var item = ctx.Requests.Single(r => r.Id == id);
             if (item.Query.Equals(query, StringComparison.InvariantCultureIgnoreCase)) { return; }
             if (RequestExists(item.Method.ToMethodString(), item.Route, query, item.Body)) {
+                Program.Logger.Error("A request for the given parameters already exists.");
                 throw new WebApiMockException("A request for the given parameters already exists.", 24); }
             item.Query = query;
             ctx.Requests.Update(item);
-            ctx.SaveChanges();
+            ctx.SaveChanges(true);
         }
 
         /// <summary>
@@ -526,15 +553,17 @@ namespace WebApiMock.Data {
         /// <param name="body">The new value for the body.</param>
         public static void SetRequestBody(int id, string body) {
             if (!RequestExistsForId(id)) {
+                Program.Logger.Error($"No request with id #{id} found.");
                 throw new WebApiMockException($"No request with id #{id} found.", 22); }
             using var ctx = new DataContext();
             var item = ctx.Requests.Single(r => r.Id == id);
             if (item.Body.Equals(body, StringComparison.InvariantCultureIgnoreCase)) { return; }
             if (RequestExists(item.Method.ToMethodString(), item.Route, item.Query, body)) {
+                Program.Logger.Error("A request for the given parameters already exists.");
                 throw new WebApiMockException("A request for the given parameters already exists.", 24); }
             item.Body = body;
             ctx.Requests.Update(item);
-            ctx.SaveChanges();
+            ctx.SaveChanges(true);
         }
 
         /// <summary>
@@ -544,18 +573,21 @@ namespace WebApiMock.Data {
         /// <param name="httpMethod">The new value for the HTTP method.</param>
         public static void SetRequestMethod(int id, string httpMethod) {
             if (!RequestExistsForId(id)) {
+                Program.Logger.Error($"No request with id #{id} found.");
                 throw new WebApiMockException($"No request with id #{id} found.", 22); }
             var method = httpMethod.ToMethodEnum();
             if(method == HttpMethodEnum.Unknown) {
+                Program.Logger.Error($"Unknown HTTP method '{httpMethod}'.");
                 throw new WebApiMockException($"Unknown HTTP method '{httpMethod}'.", 27); }
             using var ctx = new DataContext();
             var item = ctx.Requests.Single(r => r.Id == id);
             if (item.Method.Equals(method)) { return; }
             if (RequestExists(httpMethod, item.Route, item.Query, item.Body)) {
+                Program.Logger.Error("A request for the given parameters already exists.");
                 throw new WebApiMockException("A request for the given parameters already exists.", 24); }
             item.Method = method;
             ctx.Requests.Update(item);
-            ctx.SaveChanges();
+            ctx.SaveChanges(true);
 
         }
 
@@ -568,13 +600,26 @@ namespace WebApiMock.Data {
         /// <param name="httpMethod">The new method.</param>
         public static void SetMethodForRoute(string route, string httpMethod) {
             var method = httpMethod.ToMethodEnum();
-            if (method == HttpMethodEnum.Unknown) { throw new WebApiMockException($"Invalid HTTP method '{httpMethod}'.", 97); }
+            if (method == HttpMethodEnum.Unknown) {
+                Program.Logger.Error($"Invalid HTTP method '{httpMethod}'.");
+                throw new WebApiMockException($"Invalid HTTP method '{httpMethod}'.", 97); }
             using var ctx = new DataContext();
             foreach (var request in ctx.Requests) {
                 if (!request.Route.Equals(route, StringComparison.InvariantCultureIgnoreCase)) { continue; }
                 request.Method = method;
                 ctx.Requests.Update(request); }
-            ctx.SaveChanges();
+            ctx.SaveChanges(true);
+        }
+
+        /// <summary>
+        /// Returns all requests for a certain response.
+        /// </summary>
+        /// <param name="responseId">The id of the response.</param>
+        /// <returns>An array with all requests using the given response.</returns>
+        public static MockupRequest[] GetRequestsForResponse(int responseId) {
+            using var ctx = new DataContext();
+            var retVal = ctx.Requests.Where(req => req.MockupResponseId == responseId).Select(req => req.ToMockupRequest()).ToArray();
+            return retVal;
         }
 
     }

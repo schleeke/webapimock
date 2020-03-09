@@ -13,6 +13,8 @@ The installation ist just copy & pasting the application files to their destinat
 
 The service can be started from the command line by calling *webapimock.exe* or it can be installed as a service by calling *webapimock.exe install* from the command line. Please visit the [Topshelf command line reference](https://docs.topshelf-project.com/en/latest/overview/commandline.html) for further information about available command line parameters.
 
+Since it's .NET core, the application should run on linux as well. The code seems to be ready to be platform-independent and Topshelf uses the DotNetCoreEnvironmentBuilder instead of the WindowsHostEnvironmentBuilder...
+
 The service will be installed using the name '*webapimock.core*' and the display name '*.NET Core Web API Mockup Service*'.
 
 ## Configuration
